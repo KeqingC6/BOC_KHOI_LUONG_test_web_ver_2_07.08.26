@@ -1,0 +1,6 @@
+{
+  "name": "Bộ Tính Thép Xây Dựng",
+  "description": "Công cụ tính toán mác thép, bê tông cốt thép, diện tích ván khuôn và tiên lượng vật liệu xây dựng offline, lưu trữ dữ liệu hoàn toàn cục bộ.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

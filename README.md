@@ -1,2 +1,20 @@
-Cần bổ sung, chỉnh sửa, phát hiện lỗi sai tính toán,... mọi vấn đề thắc mắc cứ nhắn ngắn gọn qua mail, không cần phải rườm rà như mail bình thường, cứ nhắn thẳng, trực tiếp như nhắn tin, có thể gửi ảnh chụp màn hình và khoanh vào những vị trí cần góp ý
-Manhhungdo2003@gmail.com
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+</div>
+
+# Run and deploy your AI Studio app
+
+This contains everything you need to run your app locally.
+
+View your app in AI Studio: https://ai.studio/apps/6b9f4fd8-2314-4786-9df9-c75ad5418319
+
+## Run Locally
+
+**Prerequisites:**  Node.js
+
+
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`
