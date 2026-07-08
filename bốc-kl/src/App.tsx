@@ -3,11 +3,12 @@ import { INITIAL_STEEL_GRADES, INITIAL_CONCRETE_CLASSES } from './data';
 import { BOMItem, BOMTable, SteelGrade, SteelShapeType, ConcreteClass } from './types';
 import SteelShapeCalculator from './components/SteelShapeCalculator';
 import ConcreteCalculator from './components/ConcreteCalculator';
+import FormworkCalculator from './components/FormworkCalculator';
 import SteelGradeTable from './components/SteelGradeTable';
 import HistoryManager from './components/HistoryManager';
 import UnitConverter from './components/UnitConverter';
 import LinearInterpolator from './components/LinearInterpolator';
-import { HardHat, Calculator, Building, Database, FolderOpen, ArrowLeftRight, CheckCircle2 } from 'lucide-react';
+import { HardHat, Calculator, Building, Database, FolderOpen, ArrowLeftRight, CheckCircle2, Layers } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>('calculator');
@@ -279,6 +280,17 @@ export default function App() {
               <Building className="w-4 h-4" /> Bê tông & Cốt thép
             </button>
             <button
+              onClick={() => setActiveTab('formwork')}
+              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-black rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
+                activeTab === 'formwork'
+                  ? 'bg-slate-900 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              }`}
+              id="tab-btn-formwork"
+            >
+              <Layers className="w-4 h-4" /> Tính ván khuôn
+            </button>
+            <button
               onClick={() => setActiveTab('grades')}
               className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-black rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
                 activeTab === 'grades'
@@ -339,7 +351,7 @@ export default function App() {
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <div className={(showConverter || showInterpolator) ? 'lg:col-span-8 space-y-6' : 'lg:col-span-12 space-y-6'}>
-            {activeTab === 'calculator' && (
+            <div className={activeTab === 'calculator' ? 'space-y-6' : 'hidden'}>
               <SteelShapeCalculator
                 grades={grades}
                 bomTables={bomTables}
@@ -347,11 +359,17 @@ export default function App() {
                 setTargetTableId={setTargetTableId}
                 onSaveToHistory={handleSaveToHistory}
               />
-            )}
+            </div>
 
-            {activeTab === 'concrete' && <ConcreteCalculator concreteClasses={concreteClasses} />}
+            <div className={activeTab === 'concrete' ? 'space-y-6' : 'hidden'}>
+              <ConcreteCalculator concreteClasses={concreteClasses} />
+            </div>
 
-            {activeTab === 'grades' && (
+            <div className={activeTab === 'formwork' ? 'space-y-6' : 'hidden'}>
+              <FormworkCalculator />
+            </div>
+
+            <div className={activeTab === 'grades' ? 'space-y-6' : 'hidden'}>
               <SteelGradeTable
                 grades={grades}
                 onResetGrades={handleResetGrades}
@@ -361,9 +379,9 @@ export default function App() {
                 onAddConcreteClass={handleAddConcreteClass}
                 onDeleteConcreteClass={handleDeleteConcreteClass}
               />
-            )}
+            </div>
 
-            {activeTab === 'bom' && (
+            <div className={activeTab === 'bom' ? 'space-y-6' : 'hidden'}>
               <HistoryManager
                 history={activeHistory}
                 bomTables={bomTables}
@@ -376,7 +394,7 @@ export default function App() {
                 onUpdateHistoryEntry={handleUpdateHistoryEntry}
                 grades={grades}
               />
-            )}
+            </div>
           </div>
 
           {showConverter && (
