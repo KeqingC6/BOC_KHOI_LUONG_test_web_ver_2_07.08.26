@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { INITIAL_STEEL_GRADES, INITIAL_CONCRETE_CLASSES } from './data';
 import { BOMItem, BOMTable, SteelGrade, SteelShapeType, ConcreteClass } from './types';
 import SteelShapeCalculator from './components/SteelShapeCalculator';
@@ -423,6 +424,7 @@ export default function App() {
           </div>
         </div>
       </footer>
+      <SpeedInsights />
     </div>
   );
 }
