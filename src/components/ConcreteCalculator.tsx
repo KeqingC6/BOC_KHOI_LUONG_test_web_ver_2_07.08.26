@@ -265,7 +265,7 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
               return (
                 <div key={key} className="space-y-1">
                   <label htmlFor={inputId} className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-500">
-                    {key === 'H' || key === 'L' || key === 'B' ? `${key} (m)` : `${key} (mm)`}
+                    {memberType === 'COLUMN_RECT' && key === 'h' ? 'L (mm)' : (key === 'H' || key === 'L' || key === 'B' ? `${key} (m)` : `${key} (mm)`)}
                   </label>
                   <input
                     type="number"
@@ -459,7 +459,7 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
                     {/* h (Depth) */}
                     <line x1={fbr.x + 8} y1={fbr.y + 4} x2={bbr.x + 8} y2={bbr.y + 4} stroke="#64748b" strokeWidth="0.8" strokeDasharray="2,2" />
                     <path d={`M ${fbr.x + 8},${fbr.y + 4} L ${fbr.x + 10},${fbr.y} M ${fbr.x + 8},${fbr.y + 4} L ${fbr.x + 12},${fbr.y + 7} M ${bbr.x + 8},${bbr.y + 4} L ${bbr.x + 6},${bbr.y + 1} M ${bbr.x + 8},${bbr.y + 4} L ${bbr.x + 4},${bbr.y + 8}`} stroke="#64748b" strokeWidth="0.8" />
-                    <text x={(fbr.x + bbr.x)/2 + 15} y={(fbr.y + bbr.y)/2 + 12} textAnchor="start" fill="#334155" className="text-[9px] font-black font-mono">h = {hVal} mm</text>
+                    <text x={(fbr.x + bbr.x)/2 + 15} y={(fbr.y + bbr.y)/2 + 12} textAnchor="start" fill="#334155" className="text-[9px] font-black font-mono">L = {hVal} mm</text>
 
                     {/* H (Height) */}
                     <line x1={fbl.x - 12} y1={fbl.y} x2={ftl.x - 12} y2={ftl.y} stroke="#64748b" strokeWidth="0.8" strokeDasharray="2,2" />
@@ -704,10 +704,10 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
                     <path d={`M ${xSec},${ySec + hSec + 12} L ${xSec + 4},${ySec + hSec + 9} M ${xSec},${ySec + hSec + 12} L ${xSec + 4},${ySec + hSec + 15} M ${xSec + wSec},${ySec + hSec + 12} L ${xSec + wSec - 4},${ySec + hSec + 9} M ${xSec + wSec},${ySec + hSec + 12} L ${xSec + wSec - 4},${ySec + hSec + 15}`} stroke="#475569" strokeWidth="0.8" />
                     <text x={cxSec} y={ySec + hSec + 22} textAnchor="middle" fill="#1e293b" className="text-[9px] font-extrabold font-mono">b = {bVal} mm</text>
 
-                    {/* h Dimension */}
+                    {/* L Dimension */}
                     <line x1={xSec + wSec + 12} y1={ySec} x2={xSec + wSec + 12} y2={ySec + hSec} stroke="#475569" strokeWidth="0.8" />
                     <path d={`M ${xSec + wSec + 12},${ySec} L ${xSec + wSec + 9},${ySec + 4} M ${xSec + wSec + 12},${ySec} L ${xSec + wSec + 15},${ySec + 4} M ${xSec + wSec + 12},${ySec + hSec} L ${xSec + wSec + 9},${ySec + hSec - 4} M ${xSec + wSec + 12},${ySec + hSec} L ${xSec + wSec + 15},${ySec + hSec - 4}`} stroke="#475569" strokeWidth="0.8" />
-                    <text x={xSec + wSec + 18} y={cySec + 3} textAnchor="start" fill="#1e293b" className="text-[9px] font-extrabold font-mono">h = {hVal} mm</text>
+                    <text x={xSec + wSec + 18} y={cySec + 3} textAnchor="start" fill="#1e293b" className="text-[9px] font-extrabold font-mono">L = {hVal} mm</text>
                   </g>
                 )}
 
