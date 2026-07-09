@@ -265,7 +265,7 @@ export default function App() {
             <div>
               <h1 className="text-base sm:text-lg font-black uppercase tracking-tight">Construction Calc Pro</h1>
               <p className="text-[9px] text-slate-400 font-extrabold tracking-wider uppercase">
-                Tiên lượng mác thép & hình học xây dựng 100% offline
+                THỐNG KÊ KHỐI LƯỢNG VẬT LIỆU TRONG CÔNG TRÌNH
               </p>
             </div>
           </div>
