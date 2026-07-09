@@ -5,12 +5,12 @@ export const INITIAL_STEEL_GRADES: SteelGrade[] = [
     id: 'ct3',
     name: 'CT3',
     category: 'structural',
-    standard: 'TCVN 1765-75',
-    fy: 245,
-    fu: 370,
+    standard: 'TCVN 1765:1975',
+    fy: 235,
+    fu: 373,
     density: 7850,
     elasticModulus: 206,
-    description: 'Thép kết cấu carbon thông dụng tại Việt Nam (tương đương SS400).'
+    description: 'Thép kết cấu carbon thông dụng tại Việt Nam (TCVN 1765:1975).'
   },
   {
     id: 'ss400',
@@ -24,10 +24,43 @@ export const INITIAL_STEEL_GRADES: SteelGrade[] = [
     description: 'Thép cán nóng thông dụng nhất cho nhà xưởng, dầm cột và bản mã.'
   },
   {
+    id: 'ss540',
+    name: 'SS540',
+    category: 'structural',
+    standard: 'JIS G3101 (Nhật Bản)',
+    fy: 400,
+    fu: 540,
+    density: 7850,
+    elasticModulus: 200,
+    description: 'Thép tấm, thép hình cường độ cao tiêu chuẩn Nhật Bản.'
+  },
+  {
+    id: 'sm400',
+    name: 'SM400',
+    category: 'structural',
+    standard: 'JIS G3106 (Nhật Bản)',
+    fy: 245,
+    fu: 400,
+    density: 7850,
+    elasticModulus: 200,
+    description: 'Thép kết cấu hàn tiêu chuẩn Nhật Bản.'
+  },
+  {
+    id: 'sm490',
+    name: 'SM490',
+    category: 'structural',
+    standard: 'JIS G3106 (Nhật Bản)',
+    fy: 325,
+    fu: 490,
+    density: 7850,
+    elasticModulus: 200,
+    description: 'Thép kết cấu hàn cường độ cao, chịu lực lớn tiêu chuẩn Nhật Bản.'
+  },
+  {
     id: 's235jr',
     name: 'S235JR',
     category: 'structural',
-    standard: 'EN 10025 (Châu Âu)',
+    standard: 'EN 10025-2 (Châu Âu)',
     fy: 235,
     fu: 360,
     density: 7850,
@@ -38,23 +71,23 @@ export const INITIAL_STEEL_GRADES: SteelGrade[] = [
     id: 's275jr',
     name: 'S275JR',
     category: 'structural',
-    standard: 'EN 10025 (Châu Âu)',
+    standard: 'EN 10025-2 (Châu Âu)',
     fy: 275,
-    fu: 430,
+    fu: 410,
     density: 7850,
     elasticModulus: 210,
-    description: 'Thép kết cấu cường độ trung bình tiêu chuẩn châu Âu.'
+    description: 'Thép kết cấu tiêu chuẩn châu Âu.'
   },
   {
     id: 's355jr',
     name: 'S355JR',
     category: 'structural',
-    standard: 'EN 10025 (Châu Âu)',
+    standard: 'EN 10025-2 (Châu Âu)',
     fy: 355,
-    fu: 510,
+    fu: 470,
     density: 7850,
     elasticModulus: 210,
-    description: 'Thép kết cấu hợp kim thấp cường độ cao phổ biến trong xây dựng công nghiệp.'
+    description: 'Thép kết cấu hợp kim thấp cường độ cao tiêu chuẩn châu Âu.'
   },
   {
     id: 'a36',
@@ -68,48 +101,136 @@ export const INITIAL_STEEL_GRADES: SteelGrade[] = [
     description: 'Mác thép kết cấu carbon tiêu chuẩn Mỹ rất phổ biến cho các cấu kiện hàn.'
   },
   {
+    id: 'a572gr50',
+    name: 'A572 Gr.50',
+    category: 'structural',
+    standard: 'ASTM A572 (Mỹ)',
+    fy: 345,
+    fu: 450,
+    density: 7850,
+    elasticModulus: 200,
+    description: 'Thép kết cấu cường độ cao hợp kim thấp tiêu chuẩn Mỹ.'
+  },
+  {
+    id: 'q235b',
+    name: 'Q235B',
+    category: 'structural',
+    standard: 'GB/T 700 - Trung Quốc',
+    fy: 235,
+    fu: 370,
+    density: 7850,
+    elasticModulus: 200,
+    description: 'Thép kết cấu cacbon thông thường tiêu chuẩn Trung Quốc.'
+  },
+  {
+    id: 'q345b',
+    name: 'Q345B',
+    category: 'structural',
+    standard: 'GB/T 1591 - Trung Quốc',
+    fy: 345,
+    fu: 470,
+    density: 7850,
+    elasticModulus: 200,
+    description: 'Thép hợp kim thấp, cường độ cao tiêu chuẩn Trung Quốc.'
+  },
+  {
+    id: 'ct3_st3sp',
+    name: 'CT3 (St3sp)',
+    category: 'structural',
+    standard: 'GOST 380-2005 (Nga)',
+    fy: 235,
+    fu: 370,
+    density: 7850,
+    elasticModulus: 200,
+    description: 'Thép tấm, thép hình kết cấu cacbon tiêu chuẩn Nga.'
+  },
+  {
     id: 'cb240-t',
     name: 'CB240-T',
     category: 'rebar',
-    standard: 'TCVN 1651-1:2018',
+    standard: 'TCVN 1651:2018',
     fy: 240,
     fu: 380,
     density: 7850,
     elasticModulus: 200,
-    description: 'Thép cuộn tròn trơn, thường dùng làm thép đai hoặc lưới thép hàn.'
+    description: 'Cốt thép bê tông dạng tròn trơn tiêu chuẩn Việt Nam.'
   },
   {
     id: 'cb300-v',
     name: 'CB300-V',
     category: 'rebar',
-    standard: 'TCVN 1651-2:2018',
+    standard: 'TCVN 1651:2018',
     fy: 300,
     fu: 450,
     density: 7850,
     elasticModulus: 200,
-    description: 'Thép thanh vằn cốt bê tông cường độ trung bình.'
+    description: 'Cốt thép bê tông dạng thanh vằn tiêu chuẩn Việt Nam.'
   },
   {
     id: 'cb400-v',
     name: 'CB400-V',
     category: 'rebar',
-    standard: 'TCVN 1651-2:2018',
+    standard: 'TCVN 1651:2018',
     fy: 400,
     fu: 570,
     density: 7850,
     elasticModulus: 200,
-    description: 'Thép thanh vằn cốt bê tông cường độ cao rất phổ biến cho nhà cao tầng.'
+    description: 'Cốt thép bê tông dạng thanh vằn tiêu chuẩn Việt Nam.'
   },
   {
     id: 'cb500-v',
     name: 'CB500-V',
     category: 'rebar',
-    standard: 'TCVN 1651-2:2018',
+    standard: 'TCVN 1651:2018',
     fy: 500,
     fu: 650,
     density: 7850,
     elasticModulus: 200,
-    description: 'Thép thanh vằn cốt bê tông cường lực siêu cao giúp giảm tiết diện cốt thép.'
+    description: 'Cốt thép bê tông dạng thanh vằn cường độ cao tiêu chuẩn Việt Nam.'
+  },
+  {
+    id: 'sd295a',
+    name: 'SD295A',
+    category: 'rebar',
+    standard: 'JIS G3112 (Nhật Bản)',
+    fy: 295,
+    fu: 440,
+    density: 7850,
+    elasticModulus: 200,
+    description: 'Cốt thép bê tông cán nóng dạng thanh vằn tiêu chuẩn Nhật Bản.'
+  },
+  {
+    id: 'sd390',
+    name: 'SD390',
+    category: 'rebar',
+    standard: 'JIS G3112 (Nhật Bản)',
+    fy: 390,
+    fu: 560,
+    density: 7850,
+    elasticModulus: 200,
+    description: 'Cốt thép bê tông cường độ cao tiêu chuẩn Nhật Bản.'
+  },
+  {
+    id: 'grade40',
+    name: 'Grade 40',
+    category: 'rebar',
+    standard: 'ASTM A615 (Mỹ)',
+    fy: 280,
+    fu: 420,
+    density: 7850,
+    elasticModulus: 200,
+    description: 'Cốt thép bê tông tiêu chuẩn Mỹ cường độ trung bình.'
+  },
+  {
+    id: 'grade60',
+    name: 'Grade 60',
+    category: 'rebar',
+    standard: 'ASTM A615 (Mỹ)',
+    fy: 420,
+    fu: 620,
+    density: 7850,
+    elasticModulus: 200,
+    description: 'Cốt thép bê tông cường độ cao tiêu chuẩn Mỹ.'
   }
 ];
 

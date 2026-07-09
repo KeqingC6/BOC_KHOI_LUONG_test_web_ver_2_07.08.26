@@ -14,7 +14,47 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<string>('calculator');
   const [grades, setGrades] = useState<SteelGrade[]>(() => {
     const saved = localStorage.getItem('steel_calc_grades');
-    return saved ? JSON.parse(saved) : INITIAL_STEEL_GRADES;
+    if (saved) {
+      try {
+        const parsed: SteelGrade[] = JSON.parse(saved);
+        const updated = [...parsed];
+        INITIAL_STEEL_GRADES.forEach((initial) => {
+          const idx = updated.findIndex((g) => g.id === initial.id);
+          if (idx !== -1) {
+            updated[idx] = {
+              ...updated[idx],
+              name: initial.name,
+              standard: initial.standard,
+              fy: initial.fy,
+              fu: initial.fu,
+              category: initial.category,
+              elasticModulus: initial.elasticModulus,
+              description: initial.description
+            };
+          } else {
+            const nameIdx = updated.findIndex((g) => g.name.toLowerCase() === initial.name.toLowerCase());
+            if (nameIdx !== -1) {
+              updated[nameIdx] = {
+                ...updated[nameIdx],
+                id: initial.id,
+                standard: initial.standard,
+                fy: initial.fy,
+                fu: initial.fu,
+                category: initial.category,
+                elasticModulus: initial.elasticModulus,
+                description: initial.description
+              };
+            } else {
+              updated.push(initial);
+            }
+          }
+        });
+        return updated;
+      } catch (e) {
+        return INITIAL_STEEL_GRADES;
+      }
+    }
+    return INITIAL_STEEL_GRADES;
   });
   const [concreteClasses, setConcreteClasses] = useState<ConcreteClass[]>(() => {
     const saved = localStorage.getItem('steel_calc_concrete_classes');

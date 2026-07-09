@@ -237,7 +237,7 @@ export default function SteelGradeTable({
             <form onSubmit={handleGradeSubmit} className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3.5 animate-fadeIn">
               <div className="flex justify-between items-center pb-2 border-b border-slate-200/60">
                 <h4 className="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                  <Plus className="w-4 h-4 text-orange-500" /> Thêm mác thép cán nóng hoặc thanh vằn mới
+                  <Plus className="w-4 h-4 text-orange-500" /> Thêm mác thép cán nóng hoặc cốt thép mới
                 </h4>
                 <button
                   type="button"
@@ -288,7 +288,7 @@ export default function SteelGradeTable({
                     className="w-full px-3 py-1.5 text-xs border border-slate-200 rounded-lg bg-white font-bold"
                   >
                     <option value="structural">Kết cấu (Structural)</option>
-                    <option value="rebar">Thanh vằn (Rebar)</option>
+                    <option value="rebar">Cốt thép (Rebar)</option>
                   </select>
                 </div>
 
@@ -410,7 +410,7 @@ export default function SteelGradeTable({
                             : 'bg-emerald-50 text-emerald-600 border border-emerald-100'
                         }`}
                       >
-                        {g.category === 'structural' ? 'Kết cấu' : 'Thanh vằn'}
+                        {g.category === 'structural' ? 'Kết cấu' : 'Cốt thép'}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-center">

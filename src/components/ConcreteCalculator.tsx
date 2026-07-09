@@ -449,7 +449,7 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
                       pointerEvents="none"
                     />
 
-                    <text x={fbl.x + w3D / 2} y={fbl.y - h3D / 2} textAnchor="middle" fill="#475569" className="text-[10px] font-black tracking-widest">BÊ TÔNG CỘT</text>
+                    <text x="195" y="60" textAnchor="middle" fill="#0f172a" className="text-[10px] font-black tracking-widest bg-slate-100">BÊ TÔNG CỘT</text>
 
                     {/* b (Width) */}
                     <line x1={fbl.x} y1={fbl.y + 12} x2={fbr.x} y2={fbr.y + 12} stroke="#64748b" strokeWidth="0.8" strokeDasharray="2,2" />
@@ -487,7 +487,7 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
                     <ellipse cx={x0_3d + rx3d} cy={y0_3d - h3D} rx={rx3d} ry={ry3d} fill="url(#concrete-pattern-concrete)" stroke="#64748b" strokeWidth="1.2" />
                     <ellipse cx={x0_3d + rx3d} cy={y0_3d - h3D} rx={rx3d} ry={ry3d} fill="#ffffff" fillOpacity="0.3" pointerEvents="none" />
 
-                    <text x={x0_3d + rx3d} y={y0_3d - h3D / 2} textAnchor="middle" fill="#475569" className="text-[10px] font-black tracking-widest">CỘT TRÒN BTCT</text>
+                    <text x="195" y="60" textAnchor="middle" fill="#0f172a" className="text-[10px] font-black tracking-widest">CỘT TRÒN BTCT</text>
 
                     {/* D (Diameter) */}
                     <line x1={x0_3d} y1={y0_3d + 12} x2={x0_3d + w3D} y2={y0_3d + 12} stroke="#64748b" strokeWidth="0.8" strokeDasharray="2,2" />
@@ -659,8 +659,23 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
                     <rect x={xSec} y={ySec} width={wSec} height={hSec} fill="url(#concrete-pattern-concrete)" stroke="#475569" strokeWidth="1.5" />
                     <rect x={xSec} y={ySec} width={wSec} height={hSec} fill="#ffffff" fillOpacity="0.2" pointerEvents="none" />
 
-                    {/* Stirrup (Đai cột) */}
-                    <rect x={xSec + 11} y={ySec + 11} width={wSec - 22} height={hSec - 22} fill="none" stroke="#ea580c" strokeWidth="1.5" />
+                    {/* Stirrup (Đai cột) - Wraps around outer edge and curves at the 4 corners */}
+                    <path
+                      d={
+                        `M ${xSec + 5.5},${ySec + 11} ` +
+                        `A 5.5,5.5 0 0,1 ${xSec + 11},${ySec + 5.5} ` +
+                        `L ${xSec + wSec - 11},${ySec + 5.5} ` +
+                        `A 5.5,5.5 0 0,1 ${xSec + wSec - 5.5},${ySec + 11} ` +
+                        `L ${xSec + wSec - 5.5},${ySec + hSec - 11} ` +
+                        `A 5.5,5.5 0 0,1 ${xSec + wSec - 11},${ySec + hSec - 5.5} ` +
+                        `L ${xSec + 11},${ySec + hSec - 5.5} ` +
+                        `A 5.5,5.5 0 0,1 ${xSec + 5.5},${ySec + hSec - 11} ` +
+                        `Z`
+                      }
+                      fill="none"
+                      stroke="#ea580c"
+                      strokeWidth="1.5"
+                    />
 
                     {/* Corner Rebars */}
                     <circle cx={xSec + 11} cy={ySec + 11} r="5.5" fill="#f97316" stroke="#ea580c" strokeWidth="1" />
@@ -671,14 +686,14 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
                     {/* Mid Rebars (dynamic based on size) */}
                     {hSec > 95 && (
                       <>
-                        <circle cx={xSec + 11} cy={ySec + hSec / 2} r="5" fill="#f97316" stroke="#ea580c" strokeWidth="1" />
-                        <circle cx={xSec + wSec - 11} cy={ySec + hSec / 2} r="5" fill="#f97316" stroke="#ea580c" strokeWidth="1" />
+                        <circle cx={xSec + 11} cy={ySec + hSec / 2} r="5.5" fill="#f97316" stroke="#ea580c" strokeWidth="1" />
+                        <circle cx={xSec + wSec - 11} cy={ySec + hSec / 2} r="5.5" fill="#f97316" stroke="#ea580c" strokeWidth="1" />
                       </>
                     )}
                     {wSec > 95 && (
                       <>
-                        <circle cx={xSec + wSec / 2} cy={ySec + 11} r="5" fill="#f97316" stroke="#ea580c" strokeWidth="1" />
-                        <circle cx={xSec + wSec / 2} cy={ySec + hSec - 11} r="5" fill="#f97316" stroke="#ea580c" strokeWidth="1" />
+                        <circle cx={xSec + wSec / 2} cy={ySec + 11} r="5.5" fill="#f97316" stroke="#ea580c" strokeWidth="1" />
+                        <circle cx={xSec + wSec / 2} cy={ySec + hSec - 11} r="5.5" fill="#f97316" stroke="#ea580c" strokeWidth="1" />
                       </>
                     )}
 
@@ -702,8 +717,8 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
                     <circle cx={cxSec} cy={cySec} r={rSec} fill="url(#concrete-pattern-concrete)" stroke="#475569" strokeWidth="1.5" />
                     <circle cx={cxSec} cy={cySec} r={rSec} fill="#ffffff" fillOpacity="0.2" pointerEvents="none" />
 
-                    {/* Circle Stirrup (Đai tròn) */}
-                    <circle cx={cxSec} cy={cySec} r={rSec - 11} fill="none" stroke="#ea580c" strokeWidth="1.5" />
+                    {/* Circle Stirrup (Đai tròn) - Wraps around the outer edge of steel rebars */}
+                    <circle cx={cxSec} cy={cySec} r={rSec - 5.5} fill="none" stroke="#ea580c" strokeWidth="1.5" />
 
                     {/* Distributed circular rebars */}
                     {[0, 60, 120, 180, 240, 300].map((angleDegree, idx) => {
@@ -731,12 +746,27 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
                     <rect x={xSec} y={ySec} width={wSec} height={hSec} fill="url(#concrete-pattern-concrete)" stroke="#475569" strokeWidth="1.5" />
                     <rect x={xSec} y={ySec} width={wSec} height={hSec} fill="#ffffff" fillOpacity="0.2" pointerEvents="none" />
 
-                    {/* Stirrup (Đai dầm) */}
-                    <rect x={xSec + 11} y={ySec + 11} width={wSec - 22} height={hSec - 22} fill="none" stroke="#ea580c" strokeWidth="1.5" />
+                    {/* Stirrup (Đai dầm) - Wraps around outer edge and curves at the 4 corners */}
+                    <path
+                      d={
+                        `M ${xSec + 5.5},${ySec + 11} ` +
+                        `A 5.5,5.5 0 0,1 ${xSec + 11},${ySec + 5.5} ` +
+                        `L ${xSec + wSec - 11},${ySec + 5.5} ` +
+                        `A 5.5,5.5 0 0,1 ${xSec + wSec - 5.5},${ySec + 11} ` +
+                        `L ${xSec + wSec - 5.5},${ySec + hSec - 11} ` +
+                        `A 5.5,5.5 0 0,1 ${xSec + wSec - 11},${ySec + hSec - 5.5} ` +
+                        `L ${xSec + 11},${ySec + hSec - 5.5} ` +
+                        `A 5.5,5.5 0 0,1 ${xSec + 5.5},${ySec + hSec - 11} ` +
+                        `Z`
+                      }
+                      fill="none"
+                      stroke="#ea580c"
+                      strokeWidth="1.5"
+                    />
 
                     {/* Top Steel Layer */}
-                    <circle cx={xSec + 11} cy={ySec + 11} r="5" fill="#f97316" stroke="#ea580c" strokeWidth="1" />
-                    <circle cx={xSec + wSec - 11} cy={ySec + 11} r="5" fill="#f97316" stroke="#ea580c" strokeWidth="1" />
+                    <circle cx={xSec + 11} cy={ySec + 11} r="5.5" fill="#f97316" stroke="#ea580c" strokeWidth="1" />
+                    <circle cx={xSec + wSec - 11} cy={ySec + 11} r="5.5" fill="#f97316" stroke="#ea580c" strokeWidth="1" />
                     
                     {/* Bottom Steel Layer */}
                     <circle cx={xSec + 11} cy={ySec + hSec - 11} r="5.5" fill="#f97316" stroke="#ea580c" strokeWidth="1" />
