@@ -1,6 +1,7 @@
 import { useState, useEffect, useId } from 'react';
 import { Layers, Plus, Trash2, FileText, Printer, Layers3 } from 'lucide-react';
 import { formatWithCommas } from '../utils';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface SavedFormworkItem {
   id: string;
@@ -24,11 +25,12 @@ interface SavedFormworkItem {
 }
 
 export default function FormworkCalculator() {
+  const { t, language } = useLanguage();
   const [name, setName] = useState('');
   const [b, setB] = useState('300'); // mm
   const [h, setH] = useState('600'); // mm
   const [L, setL] = useState('6000'); // mm
-  const [t, setT] = useState('18');   // mm
+  const [tSize, setT] = useState('18');   // mm (renamed from t to tSize/tVal if needed, but we keep state var name as t)
   const [calcType, setCalcType] = useState<'5_FACES' | '4_FACES'>('5_FACES');
   const [qty, setQty] = useState<number>(1);
   const [hoveredFace, setHoveredFace] = useState<number | null>(null);
@@ -61,7 +63,7 @@ export default function FormworkCalculator() {
   const bVal = parseFloat(b) || 0; // mm
   const hVal = parseFloat(h) || 0; // mm
   const LVal = parseFloat(L) || 0; // mm
-  const tVal = parseFloat(t) || 0; // mm
+  const tVal = parseFloat(tSize) || 0; // mm
 
   // Convert mm to meters for formulas to yield results in m²
   const bVal_m = bVal / 1000;
@@ -92,7 +94,7 @@ export default function FormworkCalculator() {
   const grandTotalArea = singleTotalArea * qty;
 
   const handleSaveItem = () => {
-    const defaultName = `Dầm/Cột ván khuôn #${savedList.length + 1}`;
+    const defaultName = language === 'vi' ? `Dầm/Cột ván khuôn #${savedList.length + 1}` : `Beam/Column Formwork #${savedList.length + 1}`;
     const newItem: SavedFormworkItem = {
       id: `fw-${Date.now()}`,
       name: name.trim() || defaultName,
@@ -116,18 +118,19 @@ export default function FormworkCalculator() {
 
     setSavedList([newItem, ...savedList]);
     setName('');
-    showToast('Đã lưu cấu kiện ván khuôn thành công!');
+    showToast(language === 'vi' ? 'Đã lưu cấu kiện ván khuôn thành công!' : 'Formwork member saved successfully!');
   };
 
   const handleDeleteItem = (id: string) => {
     setSavedList(savedList.filter((item) => item.id !== id));
-    showToast('Đã xóa cấu kiện khỏi danh sách.');
+    showToast(language === 'vi' ? 'Đã xóa cấu kiện khỏi danh sách.' : 'Member removed from the list.');
   };
 
   const handleClearAll = () => {
-    if (confirm('Bạn có chắc chắn muốn xóa toàn bộ danh sách đã lưu?')) {
+    const confirmMsg = language === 'vi' ? 'Bạn có chắc chắn muốn xóa toàn bộ danh sách đã lưu?' : 'Are you sure you want to clear the entire saved list?';
+    if (confirm(confirmMsg)) {
       setSavedList([]);
-      showToast('Đã xóa toàn bộ danh sách.');
+      showToast(language === 'vi' ? 'Đã xóa toàn bộ danh sách.' : 'Entire list cleared.');
     }
   };
 
@@ -142,7 +145,7 @@ export default function FormworkCalculator() {
     setT(presetT);
     setCalcType(type);
     setName(label);
-    showToast(`Đã áp dụng mẫu thiết kế: ${label}`);
+    showToast(language === 'vi' ? `Đã áp dụng mẫu thiết kế: ${label}` : `Applied design template: ${label}`);
   };
 
   // Visual helper sizes for the interactive SVG (using meter scales)
@@ -200,10 +203,10 @@ export default function FormworkCalculator() {
           <Layers className="text-orange-500 w-5 h-5" />
           <div>
             <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest">
-              Tính toán diện tích ván khuôn cấu kiện
+              {language === 'vi' ? 'Tính toán diện tích ván khuôn cấu kiện' : 'Formwork Area Calculation'}
             </h3>
             <p className="text-[10px] text-slate-400 font-extrabold uppercase mt-0.5 tracking-wider">
-              Khối lượng ván khuôn phủ phim / ván gỗ theo hình cắt lớp thực tế (m²)
+              {language === 'vi' ? 'Khối lượng ván khuôn phủ phim / ván gỗ theo hình cắt lớp thực tế (m²)' : 'Plywood / film faced formwork area based on physical cross sections (m²)'}
             </p>
           </div>
         </div>
@@ -214,13 +217,13 @@ export default function FormworkCalculator() {
             onClick={() => handlePreset('300', '600', '6000', '18', '5_FACES', 'Dầm D1 (300x600 L=6m)')}
             className="px-2.5 py-1 text-[10px] font-black bg-slate-50 hover:bg-slate-100 text-slate-600 rounded border border-slate-200 cursor-pointer transition-colors animate-fadeIn"
           >
-            Mẫu Dầm (5 mặt)
+            {language === 'vi' ? 'Mẫu Dầm (5 mặt)' : 'Beam Template (5 faces)'}
           </button>
           <button
             onClick={() => handlePreset('400', '400', '3500', '15', '4_FACES', 'Cột C1 (400x400 H=3.5m)')}
             className="px-2.5 py-1 text-[10px] font-black bg-slate-50 hover:bg-slate-100 text-slate-600 rounded border border-slate-200 cursor-pointer transition-colors animate-fadeIn"
           >
-            Mẫu Cột (4 mặt)
+            {language === 'vi' ? 'Mẫu Cột (4 mặt)' : 'Column Template (4 faces)'}
           </button>
         </div>
       </div>
@@ -287,7 +290,7 @@ export default function FormworkCalculator() {
                 step="any"
                 min="0"
                 className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-black font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900"
-                value={t}
+                value={tSize}
                 onChange={(e) => setT(e.target.value)}
               />
             </div>
@@ -297,7 +300,7 @@ export default function FormworkCalculator() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1">
               <label htmlFor={selectCalcTypeId} className="block text-xs font-extrabold text-slate-600">
-                Phương thức tính
+                {language === 'vi' ? 'Phương thức tính' : 'Calculation Mode'}
               </label>
               <select
                 id={selectCalcTypeId}
@@ -305,14 +308,14 @@ export default function FormworkCalculator() {
                 value={calcType}
                 onChange={(e) => setCalcType(e.target.value as any)}
               >
-                <option value="5_FACES">5 mặt (Dầm / Giằng)</option>
-                <option value="4_FACES">4 mặt (Cột / Vách)</option>
+                <option value="5_FACES">{language === 'vi' ? '5 mặt (Dầm / Giằng)' : '5 faces (Beam)'}</option>
+                <option value="4_FACES">{language === 'vi' ? '4 mặt (Cột / Vách)' : '4 faces (Column)'}</option>
               </select>
             </div>
 
             <div className="space-y-1">
               <label htmlFor={inputQtyId} className="block text-xs font-extrabold text-slate-600">
-                Số lượng cấu kiện
+                {t('concreteCalc.qty')}
               </label>
               <input
                 id={inputQtyId}
@@ -327,13 +330,13 @@ export default function FormworkCalculator() {
 
             <div className="space-y-1">
               <label htmlFor={inputNameId} className="block text-xs font-extrabold text-slate-600">
-                Ký hiệu kết cấu
+                {t('concreteCalc.cols.name')}
               </label>
               <input
                 id={inputNameId}
                 type="text"
                 className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold focus:bg-white focus:ring-1 focus:ring-slate-900 focus:outline-none"
-                placeholder="Ví dụ: Dầm D1, Cột C2..."
+                placeholder={language === 'vi' ? 'Ví dụ: Dầm D1, Cột C2...' : 'e.g., Beam D1, Column C2...'}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -345,7 +348,7 @@ export default function FormworkCalculator() {
             onClick={handleSaveItem}
             className="w-full py-2.5 bg-slate-900 hover:bg-slate-850 active:scale-[0.99] text-white text-xs font-extrabold rounded-lg shadow-sm transition-all cursor-pointer font-sans uppercase tracking-wider flex items-center justify-center gap-1.5"
           >
-            <Plus className="w-4 h-4" /> Lưu thống kê ván khuôn
+            <Plus className="w-4 h-4" /> {language === 'vi' ? 'Lưu thống kê ván khuôn' : 'Save Formwork Stats'}
           </button>
         </div>
 
@@ -354,10 +357,10 @@ export default function FormworkCalculator() {
           <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 flex flex-col h-full justify-between gap-3">
             <div className="flex justify-between items-center pb-2 border-b border-slate-200">
               <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest">
-                Kết quả chi tiết các mặt ({qty} cái)
+                {language === 'vi' ? 'Kết quả chi tiết các mặt' : 'Detailed Face Results'} ({qty} {language === 'vi' ? 'cái' : 'pcs'})
               </span>
               <span className="font-extrabold text-orange-600 text-[10px] font-mono uppercase">
-                Đơn vị: m²
+                {language === 'vi' ? 'Đơn vị: m²' : 'Unit: m²'}
               </span>
             </div>
 
@@ -369,15 +372,15 @@ export default function FormworkCalculator() {
                 onMouseEnter={() => setHoveredFace(1)}
                 onMouseLeave={() => setHoveredFace(null)}
               >
-                <div className="text-[8.5px] text-slate-400 font-extrabold uppercase">Mặt 1 (Bên)</div>
+                <div className="text-[8.5px] text-slate-400 font-extrabold uppercase">{language === 'vi' ? 'Mặt 1 (Bên)' : 'Face 1 (Side)'}</div>
                 <div className="text-xs font-black text-slate-800">{(areaFace1 * qty).toFixed(3)}</div>
               </div>
 
               <div
                 className={`p-1.5 rounded opacity-50 bg-slate-100 border border-slate-200`}
               >
-                <div className="text-[8.5px] text-slate-400 font-extrabold uppercase">Mặt 2 (Trên)</div>
-                <div className="text-xs font-black text-slate-400">Bỏ qua</div>
+                <div className="text-[8.5px] text-slate-400 font-extrabold uppercase">{language === 'vi' ? 'Mặt 2 (Trên)' : 'Face 2 (Top)'}</div>
+                <div className="text-xs font-black text-slate-400">{language === 'vi' ? 'Bỏ qua' : 'Omit'}</div>
               </div>
 
               <div
@@ -387,7 +390,7 @@ export default function FormworkCalculator() {
                 onMouseEnter={() => setHoveredFace(3)}
                 onMouseLeave={() => setHoveredFace(null)}
               >
-                <div className="text-[8.5px] text-slate-400 font-extrabold uppercase">Mặt 3 (Bên)</div>
+                <div className="text-[8.5px] text-slate-400 font-extrabold uppercase">{language === 'vi' ? 'Mặt 3 (Bên)' : 'Face 3 (Side)'}</div>
                 <div className="text-xs font-black text-slate-800">{(areaFace3 * qty).toFixed(3)}</div>
               </div>
 
@@ -402,9 +405,9 @@ export default function FormworkCalculator() {
                 onMouseEnter={() => isFace4Active && setHoveredFace(4)}
                 onMouseLeave={() => setHoveredFace(null)}
               >
-                <div className="text-[8.5px] text-slate-400 font-extrabold uppercase">Mặt 4 (Dưới)</div>
+                <div className="text-[8.5px] text-slate-400 font-extrabold uppercase">{language === 'vi' ? 'Mặt 4 (Dưới)' : 'Face 4 (Bottom)'}</div>
                 <div className="text-xs font-black text-slate-800">
-                  {isFace4Active ? (areaFace4 * qty).toFixed(3) : 'Bỏ qua'}
+                  {isFace4Active ? (areaFace4 * qty).toFixed(3) : (language === 'vi' ? 'Bỏ qua' : 'Omit')}
                 </div>
               </div>
 
@@ -415,7 +418,7 @@ export default function FormworkCalculator() {
                 onMouseEnter={() => setHoveredFace(5)}
                 onMouseLeave={() => setHoveredFace(null)}
               >
-                <div className="text-[8.5px] text-slate-400 font-extrabold uppercase">Mặt 5 (Đầu R)</div>
+                <div className="text-[8.5px] text-slate-400 font-extrabold uppercase">{language === 'vi' ? 'Mặt 5 (Đầu R)' : 'Face 5 (End R)'}</div>
                 <div className="text-xs font-black text-slate-800">{(areaFace5 * qty).toFixed(3)}</div>
               </div>
 
@@ -426,7 +429,7 @@ export default function FormworkCalculator() {
                 onMouseEnter={() => setHoveredFace(6)}
                 onMouseLeave={() => setHoveredFace(null)}
               >
-                <div className="text-[8.5px] text-slate-400 font-extrabold uppercase">Mặt 6 (Đầu L)</div>
+                <div className="text-[8.5px] text-slate-400 font-extrabold uppercase">{language === 'vi' ? 'Mặt 6 (Đầu L)' : 'Face 6 (End L)'}</div>
                 <div className="text-xs font-black text-slate-800">{(areaFace6 * qty).toFixed(3)}</div>
               </div>
             </div>
@@ -435,10 +438,10 @@ export default function FormworkCalculator() {
             <div className="bg-orange-500 text-white rounded-lg p-3 flex justify-between items-center mt-1 shadow-md shadow-orange-500/10">
               <div>
                 <span className="text-[9px] font-black tracking-widest uppercase opacity-90 block">
-                  TỔNG DIỆN TÍCH VÁN KHUÔN
+                  {language === 'vi' ? 'TỔNG DIỆN TÍCH VÁN KHUÔN' : 'TOTAL FORMWORK AREA'}
                 </span>
                 <span className="text-[10px] opacity-75 font-bold">
-                  ({calcType === '5_FACES' ? 'Tính 5 mặt dầm' : 'Tính 4 mặt cột'} • N={qty} cái)
+                  ({calcType === '5_FACES' ? (language === 'vi' ? 'Tính 5 mặt dầm' : 'Calculate 5 faces (Beam)') : (language === 'vi' ? 'Tính 4 mặt cột' : 'Calculate 4 faces (Column)')} • N={qty} {language === 'vi' ? 'cái' : 'pcs'})
                 </span>
               </div>
               <div className="text-right">
@@ -456,7 +459,7 @@ export default function FormworkCalculator() {
           <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-5 flex flex-col justify-between relative">
             <div className="flex justify-between items-center pb-2 border-b border-slate-200">
               <span className="text-xs font-black text-slate-500 uppercase tracking-widest">
-                Hình vẽ minh họa động (mm)
+                {language === 'vi' ? 'Hình vẽ minh họa động (mm)' : 'Dynamic Diagrams (mm)'}
               </span>
               {/* Removed the "Interactive SVG" badge as requested */}
             </div>
@@ -465,20 +468,18 @@ export default function FormworkCalculator() {
             <div className="flex-1 flex items-center justify-center py-6">
               <svg viewBox="0 0 780 280" className="w-full max-w-[1050px] max-h-[380px] h-auto select-none font-mono">
                 {/* Defs for textures or markers */}
-                <defs>
-                  <pattern id="concrete-pattern" width="8" height="8" patternUnits="userSpaceOnUse">
-                    <rect width="8" height="8" fill="#e2e8f0" />
-                    <circle cx="2" cy="2" r="1.2" fill="#cbd5e1" />
-                    <circle cx="6" cy="5" r="0.8" fill="#94a3b8" />
-                    <line x1="0" y1="8" x2="8" y2="0" stroke="#f1f5f9" strokeWidth="0.5" />
-                  </pattern>
-                </defs>
+                <pattern id="concrete-pattern" width="8" height="8" patternUnits="userSpaceOnUse">
+                  <rect width="8" height="8" fill="#e2e8f0" />
+                  <circle cx="2" cy="2" r="1.2" fill="#cbd5e1" />
+                  <circle cx="6" cy="5" r="0.8" fill="#94a3b8" />
+                  <line x1="0" y1="8" x2="8" y2="0" stroke="#f1f5f9" strokeWidth="0.5" />
+                </pattern>
 
                 {/* Panel 1: 3D Isometric View */}
                 <g>
                   {/* Outer boundaries container box background */}
                   <rect x="10" y="25" width="240" height="235" fill="none" stroke="#f1f5f9" rx="6" />
-                  <text x="130" y="42" textAnchor="middle" fill="#64748b" className="text-[10px] font-extrabold">PHỐI CẢNH 3D KHỐI BÊ TÔNG</text>
+                  <text x="130" y="42" textAnchor="middle" fill="#64748b" className="text-[10px] font-extrabold">{language === 'vi' ? 'PHỐI CẢNH 3D KHỐI BÊ TÔNG' : '3D CONCRETE ISOMETRIC VIEW'}</text>
 
                   {/* 3D Core Rendering */}
                   {/* Top Face */}
@@ -529,7 +530,7 @@ export default function FormworkCalculator() {
                     fill="#475569"
                     className="text-[9px] font-black tracking-widest"
                   >
-                    BÊ TÔNG
+                    {language === 'vi' ? 'BÊ TÔNG' : 'CONCRETE'}
                   </text>
 
                   {/* Dimension Lines and Annotation labels */}
@@ -553,7 +554,7 @@ export default function FormworkCalculator() {
                 <g transform="translate(260, 0)">
                   {/* Outer boundaries container box background */}
                   <rect x="10" y="25" width="220" height="235" fill="none" stroke="#f1f5f9" rx="6" />
-                  <text x="120" y="42" textAnchor="middle" fill="#64748b" className="text-[10px] font-extrabold">MẶT CẮT NGANG</text>
+                  <text x="120" y="42" textAnchor="middle" fill="#64748b" className="text-[10px] font-extrabold">{language === 'vi' ? 'MẶT CẮT NGANG' : 'CROSS SECTION'}</text>
 
                   {/* Concrete Core */}
                   <rect
@@ -572,7 +573,7 @@ export default function FormworkCalculator() {
                     fill="#475569"
                     className="text-[10px] font-black tracking-widest"
                   >
-                    BÊ TÔNG
+                    {language === 'vi' ? 'BÊ TÔNG' : 'CONCRETE'}
                   </text>
 
                   {/* Side Panel 1 (Left) */}
@@ -643,7 +644,7 @@ export default function FormworkCalculator() {
                     fill="#94a3b8"
                     className="text-[8px] font-extrabold"
                   >
-                    2 (Bỏ)
+                    {language === 'vi' ? '2 (Bỏ)' : '2 (Omit)'}
                   </text>
 
                   {/* Bottom Panel 4 */}
@@ -681,7 +682,7 @@ export default function FormworkCalculator() {
                     fill={isFace4Active ? '#c2410c' : '#94a3b8'}
                     className="text-[8px] font-black"
                   >
-                    {isFace4Active ? '4' : '4 (Bỏ)'}
+                    {isFace4Active ? '4' : (language === 'vi' ? '4 (Bỏ)' : '4 (Omit)')}
                   </text>
 
                   {/* Dimensions Annotations */}
@@ -704,7 +705,7 @@ export default function FormworkCalculator() {
                 {/* Panel 3: Unfolded Layout (Khai triển ván khuôn) */}
                 <g transform="translate(520, 0)">
                   <rect x="10" y="25" width="240" height="235" fill="none" stroke="#f1f5f9" rx="6" />
-                  <text x="130" y="42" textAnchor="middle" fill="#64748b" className="text-[10px] font-extrabold">HÌNH KHAI TRIỂN PHẲNG</text>
+                  <text x="130" y="42" textAnchor="middle" fill="#64748b" className="text-[10px] font-extrabold">{language === 'vi' ? 'HÌNH KHAI TRIỂN PHẲNG' : 'UNFOLDED FLAT LAYOUT'}</text>
 
                   {/* Panel 1 */}
                   <rect
@@ -719,7 +720,7 @@ export default function FormworkCalculator() {
                     onMouseEnter={() => setHoveredFace(1)}
                     onMouseLeave={() => setHoveredFace(null)}
                   />
-                  <text x="120" y="115" textAnchor="middle" fill="#c2410c" className="text-[8px] font-black">Mặt 1 (L x h)</text>
+                  <text x="120" y="115" textAnchor="middle" fill="#c2410c" className="text-[8px] font-black">{language === 'vi' ? 'Mặt 1' : 'Face 1'} (L x h)</text>
 
                   {/* Panel 2 (Always Bỏ) */}
                   <rect
@@ -733,7 +734,7 @@ export default function FormworkCalculator() {
                     strokeDasharray="3,3"
                     className="opacity-50"
                   />
-                  <text x="120" y="143" textAnchor="middle" fill="#94a3b8" className="text-[8px] font-extrabold">Mặt 2 (Bỏ)</text>
+                  <text x="120" y="143" textAnchor="middle" fill="#94a3b8" className="text-[8px] font-extrabold">{language === 'vi' ? 'Mặt 2 (Bỏ)' : 'Face 2 (Omit)'}</text>
 
                   {/* Panel 3 */}
                   <rect
@@ -748,7 +749,7 @@ export default function FormworkCalculator() {
                     onMouseEnter={() => setHoveredFace(3)}
                     onMouseLeave={() => setHoveredFace(null)}
                   />
-                  <text x="120" y="171" textAnchor="middle" fill="#c2410c" className="text-[8px] font-black">Mặt 3 (L x h)</text>
+                  <text x="120" y="171" textAnchor="middle" fill="#c2410c" className="text-[8px] font-black">{language === 'vi' ? 'Mặt 3' : 'Face 3'} (L x h)</text>
 
                   {/* Panel 4 */}
                   {isFace4Active ? (
@@ -784,7 +785,7 @@ export default function FormworkCalculator() {
                     fill={isFace4Active ? '#c2410c' : '#94a3b8'}
                     className="text-[8px] font-black"
                   >
-                    {isFace4Active ? 'Mặt 4 (L x (b+2t))' : 'Mặt 4 (Bỏ)'}
+                    {isFace4Active ? (language === 'vi' ? 'Mặt 4 (L x (b+2t))' : 'Face 4 (L x (b+2t))') : (language === 'vi' ? 'Mặt 4 (Bỏ)' : 'Face 4 (Omit)')}
                   </text>
 
                   {/* Panel 6 (Left End) */}
@@ -800,8 +801,8 @@ export default function FormworkCalculator() {
                     onMouseEnter={() => setHoveredFace(6)}
                     onMouseLeave={() => setHoveredFace(null)}
                   />
-                  <text x="30" y="103" textAnchor="middle" fill="#c2410c" className="text-[7.5px] font-black">Mặt 6</text>
-                  <text x="30" y="113" textAnchor="middle" fill="#c2410c" className="text-[6.5px] font-semibold">Đầu trái</text>
+                  <text x="30" y="103" textAnchor="middle" fill="#c2410c" className="text-[7.5px] font-black">{language === 'vi' ? 'Mặt 6' : 'Face 6'}</text>
+                  <text x="30" y="113" textAnchor="middle" fill="#c2410c" className="text-[6.5px] font-semibold">{language === 'vi' ? 'Đầu trái' : 'Left End'}</text>
 
                   {/* Panel 5 (Right End) */}
                   <rect
@@ -816,8 +817,8 @@ export default function FormworkCalculator() {
                     onMouseEnter={() => setHoveredFace(5)}
                     onMouseLeave={() => setHoveredFace(null)}
                   />
-                  <text x="210" y="103" textAnchor="middle" fill="#c2410c" className="text-[7.5px] font-black">Mặt 5</text>
-                  <text x="210" y="113" textAnchor="middle" fill="#c2410c" className="text-[6.5px] font-semibold">Đầu phải</text>
+                  <text x="210" y="103" textAnchor="middle" fill="#c2410c" className="text-[7.5px] font-black">{language === 'vi' ? 'Mặt 5' : 'Face 5'}</text>
+                  <text x="210" y="113" textAnchor="middle" fill="#c2410c" className="text-[6.5px] font-semibold">{language === 'vi' ? 'Đầu phải' : 'Right End'}</text>
 
                   {/* Dimension Annotations on Net */}
                   {/* Length L */}
@@ -838,10 +839,10 @@ export default function FormworkCalculator() {
             <Layers3 className="text-slate-500 w-4.5 h-4.5" />
             <div>
               <h4 className="text-[11px] font-black text-slate-600 uppercase tracking-widest">
-                Danh sách cấu kiện ván khuôn đã tính ({savedList.length})
+                {language === 'vi' ? 'Danh sách cấu kiện ván khuôn đã tính' : 'Formwork Calculations Log'} ({savedList.length})
               </h4>
               <p className="text-[9px] text-slate-400 font-extrabold uppercase">
-                Dữ liệu được lưu trữ tự động trên thiết bị của bạn
+                {language === 'vi' ? 'Dữ liệu được lưu trữ tự động trên thiết bị của bạn' : 'Data is automatically saved on your local device'}
               </p>
             </div>
           </div>
@@ -853,13 +854,13 @@ export default function FormworkCalculator() {
                   onClick={handlePrint}
                   className="flex items-center justify-center gap-1 px-3 py-1.5 border border-slate-200 text-[11px] font-black rounded-lg text-slate-600 hover:bg-slate-50 cursor-pointer transition-colors"
                 >
-                  <Printer className="w-3.5 h-3.5" /> In bảng kê
+                  <Printer className="w-3.5 h-3.5" /> {language === 'vi' ? 'In bảng kê' : 'Print Table'}
                 </button>
                 <button
                   onClick={handleClearAll}
                   className="flex items-center justify-center gap-1 px-3 py-1.5 border border-red-200 text-[11px] font-black rounded-lg text-red-600 hover:bg-red-50 cursor-pointer transition-colors"
                 >
-                  <Trash2 className="w-3.5 h-3.5" /> Xóa tất cả
+                  <Trash2 className="w-3.5 h-3.5" /> {language === 'vi' ? 'Xóa tất cả' : 'Clear All'}
                 </button>
               </>
             )}
@@ -869,21 +870,21 @@ export default function FormworkCalculator() {
         {savedList.length === 0 ? (
           <div className="bg-slate-50 rounded-xl p-8 text-center border border-dashed border-slate-200">
             <FileText className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-            <p className="text-xs font-bold text-slate-400 uppercase">Chưa có dữ liệu ván khuôn nào được lưu</p>
-            <p className="text-[10px] text-slate-400 mt-0.5">Nhập các thông số hình học phía trên rồi nhấn "Lưu cấu kiện" để thống kê.</p>
+            <p className="text-xs font-bold text-slate-400 uppercase">{language === 'vi' ? 'Chưa có dữ liệu ván khuôn nào được lưu' : 'No saved formwork calculations found'}</p>
+            <p className="text-[10px] text-slate-400 mt-0.5">{language === 'vi' ? 'Nhập các thông số hình học phía trên rồi nhấn "Lưu cấu kiện" để thống kê.' : 'Enter design specifications above and press "Save Formwork Stats" to compile.'}</p>
           </div>
         ) : (
           <div className="overflow-x-auto border border-slate-200 rounded-xl">
             <table className="w-full text-left border-collapse font-sans text-xs">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200">
-                  <th className="p-3 font-black text-slate-500 uppercase tracking-wider text-[9px]">Tên cấu kiện</th>
-                  <th className="p-3 font-black text-slate-500 uppercase tracking-wider text-[9px]">Kích thước bê tông (mm)</th>
-                  <th className="p-3 font-black text-slate-500 uppercase tracking-wider text-[9px]">Độ dày ván (mm)</th>
-                  <th className="p-3 font-black text-slate-500 uppercase tracking-wider text-[9px]">Kiểu tính</th>
-                  <th className="p-3 font-black text-slate-500 uppercase tracking-wider text-[9px] text-center">Số lượng</th>
-                  <th className="p-3 font-black text-slate-500 uppercase tracking-wider text-[9px] text-right">Diện tích (m²)</th>
-                  <th className="p-3 font-black text-slate-500 uppercase tracking-wider text-[9px] text-center no-print">Thao tác</th>
+                  <th className="p-3 font-black text-slate-500 uppercase tracking-wider text-[9px]">{language === 'vi' ? 'Tên cấu kiện' : 'Member Name'}</th>
+                  <th className="p-3 font-black text-slate-500 uppercase tracking-wider text-[9px]">{language === 'vi' ? 'Kích thước bê tông (mm)' : 'Concrete Dimensions (mm)'}</th>
+                  <th className="p-3 font-black text-slate-500 uppercase tracking-wider text-[9px]">{language === 'vi' ? 'Độ dày ván (mm)' : 'Sheathing (mm)'}</th>
+                  <th className="p-3 font-black text-slate-500 uppercase tracking-wider text-[9px]">{language === 'vi' ? 'Kiểu tính' : 'Method'}</th>
+                  <th className="p-3 font-black text-slate-500 uppercase tracking-wider text-[9px] text-center">{language === 'vi' ? 'Số lượng' : 'Qty'}</th>
+                  <th className="p-3 font-black text-slate-500 uppercase tracking-wider text-[9px] text-right">{language === 'vi' ? 'Diện tích (m²)' : 'Area (m²)'}</th>
+                  <th className="p-3 font-black text-slate-500 uppercase tracking-wider text-[9px] text-center no-print">{language === 'vi' ? 'Thao tác' : 'Actions'}</th>
                 </tr>
               </thead>
               <tbody>
@@ -898,7 +899,7 @@ export default function FormworkCalculator() {
                       <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-extrabold uppercase ${
                         item.calcType === '5_FACES' ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'bg-blue-50 text-blue-600 border border-blue-100'
                       }`}>
-                        {item.calcType === '5_FACES' ? '5 mặt (Dầm)' : '4 mặt (Cột)'}
+                        {item.calcType === '5_FACES' ? (language === 'vi' ? '5 mặt (Dầm)' : '5 faces (Beam)') : (language === 'vi' ? '4 mặt (Cột)' : '4 faces (Col)')}
                       </span>
                     </td>
                     <td className="p-3 text-center font-mono font-bold">{item.qty}</td>
@@ -909,7 +910,7 @@ export default function FormworkCalculator() {
                       <button
                         onClick={() => handleDeleteItem(item.id)}
                         className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded cursor-pointer transition-colors"
-                        title="Xóa dòng"
+                        title={language === 'vi' ? 'Xóa dòng' : 'Delete row'}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -918,7 +919,7 @@ export default function FormworkCalculator() {
                 ))}
                 {/* Print total summary row */}
                 <tr className="bg-orange-50/30 font-black border-t-2 border-slate-200">
-                  <td className="p-3 text-slate-900" colSpan={4}>TỔNG CỘNG HẠNG MỤC VÁN KHUÔN</td>
+                  <td className="p-3 text-slate-900" colSpan={4}>{language === 'vi' ? 'TỔNG CỘNG HẠNG MỤC VÁN KHUÔN' : 'TOTAL FORMWORK SUMMARY'}</td>
                   <td className="p-3 text-center font-mono">
                     {savedList.reduce((acc, i) => acc + i.qty, 0)}
                   </td>

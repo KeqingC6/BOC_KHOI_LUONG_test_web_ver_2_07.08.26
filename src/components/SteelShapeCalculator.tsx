@@ -4,6 +4,7 @@ import { STEEL_SHAPES } from '../data';
 import { calculateSteelProperties, formatWithCommas } from '../utils';
 import ShapeDrawing from './ShapeDrawing';
 import * as Icons from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const ShapeIcon = ({ type, className }: { type: SteelShapeType; className?: string }) => {
   if (type === 'V') {
@@ -139,6 +140,7 @@ export default function SteelShapeCalculator({
   setTargetTableId,
   onSaveToHistory,
 }: SteelShapeCalculatorProps) {
+  const { t, language, translateShape } = useLanguage();
   const [activeShape, setActiveShape] = useState<SteelShapeType>(() => {
     const saved = localStorage.getItem('steel_calc_active_shape');
     return (saved as SteelShapeType) || 'V';
@@ -227,12 +229,9 @@ export default function SteelShapeCalculator({
   const results = calculateSteelProperties(activeShape, numInputs, selectedGrade);
 
   const handleSave = () => {
-    const shapeObj = STEEL_SHAPES.find((s) => s.type === activeShape);
-    const shapeLabel = shapeObj
-      ? `${shapeObj.vietnameseName} (${Object.entries(currentInputs)
-          .map(([k, v]) => `${k}=${v}`)
-          .join(', ')})`
-      : activeShape;
+    const shapeLabel = `${translateShape(activeShape)} (${Object.entries(currentInputs)
+      .map(([k, v]) => `${k}=${v}`)
+      .join(', ')})`;
 
     onSaveToHistory(
       activeShape,
@@ -242,7 +241,7 @@ export default function SteelShapeCalculator({
       numInputs,
       results,
       quantity || 1,
-      note.trim() || `Thép hình ${activeShape}`
+      note.trim() || `${translateShape(activeShape)}`
     );
 
     setQuantity(1);
@@ -259,12 +258,12 @@ export default function SteelShapeCalculator({
             className="flex justify-between items-center cursor-pointer select-none pb-2 border-b border-slate-100"
           >
             <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
-              <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></span> Chọn loại thép hình
+              <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></span> {t('steelCalc.selectShape')}
             </h2>
             <div className="flex items-center gap-2 text-xs text-slate-400">
               {!isSelectorExpanded && (
                 <span className="font-extrabold text-orange-600 bg-orange-50 px-2 py-0.5 rounded text-[10px]">
-                  {STEEL_SHAPES.find((s) => s.type === activeShape)?.vietnameseName}
+                  {translateShape(activeShape)}
                 </span>
               )}
               {isSelectorExpanded ? (
@@ -290,7 +289,7 @@ export default function SteelShapeCalculator({
                     }`}
                   >
                     <ShapeIcon type={shape.type} className={`mb-1.5 w-4 h-4 ${isActive ? 'text-orange-500' : 'text-slate-400'}`} />
-                    <span className="text-[10.5px] font-bold truncate w-full">{shape.vietnameseName}</span>
+                    <span className="text-[10.5px] font-bold truncate w-full">{translateShape(shape.type)}</span>
                   </button>
                 );
               })}
@@ -302,10 +301,10 @@ export default function SteelShapeCalculator({
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="bg-slate-50 px-5 py-4 border-b border-slate-200 flex justify-between items-center">
             <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
-              <Icons.SlidersHorizontal className="w-4 h-4 text-slate-400" /> Thông số hình học mặt cắt
+              <Icons.SlidersHorizontal className="w-4 h-4 text-slate-400" /> {t('steelCalc.inputsTitle')}
             </h3>
             <span className="text-[10px] bg-slate-900 text-white font-black px-2 py-0.5 rounded uppercase tracking-wider font-mono">
-              Thép {activeShape}
+              {translateShape(activeShape)}
             </span>
           </div>
 
@@ -322,7 +321,7 @@ export default function SteelShapeCalculator({
                 return (
                   <div key={key} className="space-y-1">
                     <label htmlFor={inputId} className="block text-xs font-extrabold text-slate-600">
-                      {key === 'L' ? 'Chiều dài L (m)' : `Cạnh ${key} (mm)`}
+                      {t(`steelCalc.${key}`)}
                     </label>
                     <input
                       type="number"
@@ -344,7 +343,7 @@ export default function SteelShapeCalculator({
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <label htmlFor={selectGradeId} className="block text-xs font-extrabold text-slate-600">Mác thép</label>
+              <label htmlFor={selectGradeId} className="block text-xs font-extrabold text-slate-600">{t('steelCalc.steelGrade')}</label>
               <select
                 id={selectGradeId}
                 value={selectedGradeId}
@@ -360,7 +359,7 @@ export default function SteelShapeCalculator({
             </div>
 
             <div className="space-y-1">
-              <label htmlFor={inputQtyId} className="block text-xs font-extrabold text-slate-600">Số lượng (Thanh / Tấm)</label>
+              <label htmlFor={inputQtyId} className="block text-xs font-extrabold text-slate-600">{t('steelCalc.qtyLabel')}</label>
               <input
                 type="number"
                 id={inputQtyId}
@@ -380,11 +379,11 @@ export default function SteelShapeCalculator({
             </div>
 
             <div className="space-y-1">
-              <label htmlFor={inputNoteId} className="block text-xs font-extrabold text-slate-600">Ghi chú / Vị trí kết cấu</label>
+              <label htmlFor={inputNoteId} className="block text-xs font-extrabold text-slate-600">{t('steelCalc.noteLabel')}</label>
               <input
                 type="text"
                 id={inputNoteId}
-                placeholder="Ví dụ: Dầm mái trục A-B..."
+                placeholder={language === 'vi' ? 'Ví dụ: Dầm mái trục A-B...' : 'e.g., Roof beam axis A-B...'}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold focus:bg-white focus:ring-1 focus:ring-orange-500 focus:outline-none"
@@ -394,7 +393,7 @@ export default function SteelShapeCalculator({
 
           <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center pt-3 border-t border-slate-100 gap-4">
             <div className="space-y-0.5">
-              <label htmlFor={selectTargetTableId} className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">Bảng thống kê đích</label>
+              <label htmlFor={selectTargetTableId} className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">{t('steelCalc.targetBOM')}</label>
               <select
                 id={selectTargetTableId}
                 value={targetTableId}
@@ -413,7 +412,7 @@ export default function SteelShapeCalculator({
               onClick={handleSave}
               className="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 active:scale-[0.98] text-white text-xs font-extrabold rounded-lg shadow-sm uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer transition-all"
             >
-              <Icons.Plus className="w-4 h-4" /> Lưu vào bảng thống kê
+              <Icons.Plus className="w-4 h-4" /> {t('steelCalc.saveToBOM')}
             </button>
           </div>
         </div>
@@ -424,7 +423,7 @@ export default function SteelShapeCalculator({
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="bg-[#ecd3be] px-5 py-4 border-b border-orange-200/50 flex justify-between items-center">
             <span className="text-xs font-black uppercase tracking-widest text-[#758299] flex items-center gap-1.5">
-              <Icons.TrendingUp className="text-orange-600 w-4 h-4" /> Kết quả tra cứu cơ học
+              <Icons.TrendingUp className="text-orange-600 w-4 h-4" /> {t('steelCalc.resultsTitle')}
             </span>
             <span className="text-[10px] font-mono text-slate-500 font-black tracking-wider">OFFLINE ENGINE</span>
           </div>
@@ -433,8 +432,8 @@ export default function SteelShapeCalculator({
             {/* Weight per Meter */}
             <div className="flex justify-between items-center border-b border-slate-200/80 pb-3">
               <div className="space-y-0.5">
-                <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider block">Trọng lượng một mét dài</span>
-                <span className="text-[11px] text-slate-600">Trọng lượng lý thuyết định lượng</span>
+                <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider block">{t('steelCalc.properties.unitWeight')}</span>
+                <span className="text-[11px] text-slate-600">{language === 'vi' ? 'Trọng lượng lý thuyết định lượng' : 'Theoretical nominal weight'}</span>
               </div>
               <div className="text-right">
                 <span className="text-lg font-black font-mono text-orange-600">
@@ -448,9 +447,9 @@ export default function SteelShapeCalculator({
             <div className="flex justify-between items-center border-b border-slate-200/80 pb-3">
               <div className="space-y-0.5">
                 <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider block">
-                  Tổng khối lượng ({quantity || 1} thanh)
+                  {t('steelCalc.properties.totalWeight')} ({quantity || 1} {activeShape === 'PLATE' ? (language === 'vi' ? 'tấm' : 'plates') : (language === 'vi' ? 'thanh' : 'pieces')})
                 </span>
-                <span className="text-[11px] text-slate-600">Tính theo chiều dài L = {numInputs.L || 0}m</span>
+                <span className="text-[11px] text-slate-600">{language === 'vi' ? `Tính theo chiều dài L = ${numInputs.L || 0}m` : `Calculated for length L = ${numInputs.L || 0}m`}</span>
               </div>
               <div className="text-right">
                 <span className="text-xl font-black font-mono text-blue-600">
@@ -464,9 +463,9 @@ export default function SteelShapeCalculator({
             <div className="flex justify-between items-center border-b border-slate-200/80 pb-3">
               <div className="space-y-0.5">
                 <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider block">
-                  Diện tích bề mặt sơn chống rỉ
+                  {t('steelCalc.properties.paintArea')}
                 </span>
-                <span className="text-[11px] text-slate-600">Cơ sở tính toán định lượng sơn phủ</span>
+                <span className="text-[11px] text-slate-600">{language === 'vi' ? 'Cơ sở tính toán định lượng sơn phủ' : 'Basis for paint quantity estimation'}</span>
               </div>
               <div className="text-right">
                 <span className="text-base font-black font-mono text-emerald-700">
@@ -479,14 +478,14 @@ export default function SteelShapeCalculator({
             {/* Capacities (Tensile and Bending) */}
             <div className="grid grid-cols-2 gap-4 pt-2">
               <div className="bg-[#ecd3be] p-3 rounded-lg border border-orange-200/60">
-                <span className="text-[9px] text-[#f54040] font-extrabold uppercase tracking-wider block">Sức kéo giới hạn</span>
+                <span className="text-[9px] text-[#f54040] font-extrabold uppercase tracking-wider block">{t('steelCalc.properties.tensile')}</span>
                 <span className="text-sm font-black font-mono text-[#000000] mt-1 block">
                   {formatWithCommas(results.tensileCapacityKn, 1)}{' '}
                   <span className="text-[10px] text-slate-600 font-normal">kN</span>
                 </span>
               </div>
               <div className="bg-[#ecd3be] p-3 rounded-lg border border-orange-200/60">
-                <span className="text-[9px] text-[#f54040] font-extrabold uppercase tracking-wider block">Sức bền uốn elastic</span>
+                <span className="text-[9px] text-[#f54040] font-extrabold uppercase tracking-wider block">{t('steelCalc.properties.bending')}</span>
                 <span className="text-sm font-black font-mono text-[#000000] mt-1 block">
                   {formatWithCommas(results.bendingCapacityKnm, 2)}{' '}
                   <span className="text-[10px] text-slate-600 font-normal">kNm</span>

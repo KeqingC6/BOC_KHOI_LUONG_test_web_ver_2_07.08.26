@@ -2,6 +2,7 @@ import { useState, useId } from 'react';
 import { BOMItem, BOMTable, SteelGrade } from '../types';
 import { formatWithCommas, calculateSteelProperties } from '../utils';
 import { STEEL_SHAPES } from '../data';
+import { useLanguage } from '../contexts/LanguageContext';
 import {
   FolderOpen,
   Plus,
@@ -43,6 +44,7 @@ export default function HistoryManager({
   onUpdateHistoryEntry,
   grades,
 }: HistoryManagerProps) {
+  const { language, t } = useLanguage();
   const [isCreating, setIsCreating] = useState(false);
   const [newTableName, setNewTableName] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -106,7 +108,7 @@ export default function HistoryManager({
 
   const handleDoubleClickCopy = (val: string, label: string) => {
     navigator.clipboard.writeText(val);
-    setCopiedText(`Đã chép ${label}: ${val}`);
+    setCopiedText(language === 'vi' ? `Đã chép ${label}: ${val}` : `Copied ${label}: ${val}`);
     setTimeout(() => setCopiedText(null), 2000);
   };
 
@@ -132,7 +134,7 @@ export default function HistoryManager({
 
   const exportToCSV = () => {
     if (history.length === 0) return;
-    const headers = [
+    const headers = language === 'vi' ? [
       'STT',
       'Mo ta / Ky hieu',
       'Loai thep hinh',
@@ -141,6 +143,15 @@ export default function HistoryManager({
       'Khoi luong don vi (kg/m)',
       'Tong khoi luong (kg)',
       'Dien tich son (m2)',
+    ] : [
+      'No.',
+      'Mark / Description',
+      'Steel Shape Profile',
+      'Steel Grade',
+      'Qty',
+      'Unit Weight (kg/m)',
+      'Total Weight (kg)',
+      'Paint Area (m2)',
     ];
     const rows = history.map((e, idx) => [
       idx + 1,
@@ -171,10 +182,10 @@ export default function HistoryManager({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 mb-4">
           <div>
             <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-              <FolderOpen className="text-orange-500 w-4 h-4" /> Quản lý bảng thống kê dự án ({bomTables.length})
+              <FolderOpen className="text-orange-500 w-4 h-4" /> {language === 'vi' ? 'Quản lý bảng thống kê dự án' : 'Project Tables (BOM) Manager'} ({bomTables.length})
             </h3>
             <p className="text-[11px] text-slate-400 mt-0.5 font-semibold">
-              Bóc tách định lượng riêng biệt cho từng hạng mục công trình.
+              {language === 'vi' ? 'Bóc tách định lượng riêng biệt cho từng hạng mục công trình.' : 'Separate quantity takeoff lists for different structures.'}
             </p>
           </div>
 
@@ -184,15 +195,15 @@ export default function HistoryManager({
               className="px-3.5 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-[10.5px] font-extrabold rounded-lg uppercase tracking-wider flex items-center gap-1 cursor-pointer transition-all"
               id="btn-create-table-trigger"
             >
-              <Plus className="w-3.5 h-3.5" /> Tạo hạng mục mới
+              <Plus className="w-3.5 h-3.5" /> {language === 'vi' ? 'Tạo hạng mục mới' : 'Add New Table'}
             </button>
           ) : (
             <div className="flex items-center gap-2 animate-fadeIn">
-              <label htmlFor={newTableInputId} className="sr-only">Tên bảng mới...</label>
+              <label htmlFor={newTableInputId} className="sr-only">{language === 'vi' ? 'Tên bảng mới...' : 'New table name...'}</label>
               <input
                 id={newTableInputId}
                 type="text"
-                placeholder="Tên hạng mục mới..."
+                placeholder={language === 'vi' ? 'Tên hạng mục mới...' : 'New table name...'}
                 value={newTableName}
                 onChange={(e) => setNewTableName(e.target.value)}
                 onKeyDown={(e) => {
@@ -245,7 +256,7 @@ export default function HistoryManager({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (confirm(`Xóa hoàn toàn bảng kê "${t.name}" và tất cả cấu kiện?`)) {
+                      if (confirm(language === 'vi' ? `Xóa hoàn toàn bảng kê "${t.name}" và tất cả cấu kiện?` : `Completely delete the project table "${t.name}" and all of its items?`)) {
                         onDeleteTable(t.id);
                       }
                     }}
@@ -266,7 +277,7 @@ export default function HistoryManager({
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 no-print">
           <div>
             <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest font-sans flex items-center gap-1.5">
-              <span className="w-2 h-2 bg-orange-500 rounded-full"></span> Chi tiết bảng thống kê ({filteredHistory.length} cấu kiện)
+              <span className="w-2 h-2 bg-orange-500 rounded-full"></span> {language === 'vi' ? 'Chi tiết bảng thống kê' : 'Bill of Materials breakdown'} ({filteredHistory.length} {language === 'vi' ? 'cấu kiện' : 'items'})
             </h3>
           </div>
 
@@ -277,7 +288,7 @@ export default function HistoryManager({
               className="px-3.5 py-1.5 border border-slate-200 rounded-lg text-[10.5px] font-extrabold text-slate-600 hover:bg-slate-50 disabled:opacity-50 flex items-center gap-1.5 cursor-pointer transition-colors"
               id="btn-print-bom"
             >
-              <Printer className="w-3.5 h-3.5" /> In phiếu / Xuất PDF
+              <Printer className="w-3.5 h-3.5" /> {language === 'vi' ? 'In phiếu / Xuất PDF' : 'Print / Export PDF'}
             </button>
             <button
               onClick={exportToCSV}
@@ -285,7 +296,7 @@ export default function HistoryManager({
               className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-850 text-white rounded-lg text-[10.5px] font-extrabold disabled:opacity-50 flex items-center gap-1.5 cursor-pointer transition-colors"
               id="btn-export-bom"
             >
-              <FileSpreadsheet className="w-3.5 h-3.5" /> Xuất Excel (CSV)
+              <FileSpreadsheet className="w-3.5 h-3.5" /> {language === 'vi' ? 'Xuất Excel (CSV)' : 'Export Excel (CSV)'}
             </button>
             <button
               onClick={onClearHistory}
@@ -293,7 +304,7 @@ export default function HistoryManager({
               className="px-3.5 py-1.5 border border-red-200 text-red-600 rounded-lg text-[10.5px] font-extrabold hover:bg-red-50 disabled:opacity-50 flex items-center gap-1.5 cursor-pointer transition-colors"
               id="btn-clear-bom"
             >
-              <Trash2 className="w-3.5 h-3.5" /> Xóa sạch bảng
+              <Trash2 className="w-3.5 h-3.5" /> {language === 'vi' ? 'Xóa sạch bảng' : 'Clear Table'}
             </button>
           </div>
         </div>
@@ -301,11 +312,11 @@ export default function HistoryManager({
         {/* Filter / Search Bar */}
         <div className="relative max-w-xs no-print">
           <Search className="absolute left-3 top-2.5 text-slate-400 w-4 h-4" />
-          <label htmlFor={searchInputId} className="sr-only">Lọc cấu kiện...</label>
+          <label htmlFor={searchInputId} className="sr-only">{language === 'vi' ? 'Lọc cấu kiện...' : 'Filter structures...'}</label>
           <input
             id={searchInputId}
             type="text"
-            placeholder="Lọc ký hiệu hoặc loại thép..."
+            placeholder={language === 'vi' ? 'Lọc ký hiệu hoặc loại thép...' : 'Filter by mark or shape...'}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-9 pr-4 py-1.5 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-slate-900 focus:outline-none font-bold text-slate-800"
@@ -314,11 +325,11 @@ export default function HistoryManager({
 
         {/* Printing header */}
         <div className="hidden print:block text-center space-y-2 pb-6 border-b border-slate-300">
-          <h1 className="text-xl font-black uppercase text-slate-900">BẢNG THỐNG KÊ CHI TIẾT THÉP HÌNH</h1>
+          <h1 className="text-xl font-black uppercase text-slate-900">{language === 'vi' ? 'BẢNG THỐNG KÊ CHI TIẾT THÉP HÌNH' : 'DETAILED BILL OF MATERIALS (BOM)'}</h1>
           <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">
-            Hạng mục: {bomTables.find((t) => t.id === activeTableId)?.name || 'Mặc định'}
+            {language === 'vi' ? 'Hạng mục' : 'Category'}: {bomTables.find((t) => t.id === activeTableId)?.name || (language === 'vi' ? 'Mặc định' : 'Default')}
           </p>
-          <p className="text-[10px] text-slate-400 font-mono">Thời gian xuất: {new Date().toLocaleString('vi-VN')}</p>
+          <p className="text-[10px] text-slate-400 font-mono">{language === 'vi' ? 'Thời gian xuất' : 'Exported At'}: {new Date().toLocaleString(language === 'vi' ? 'vi-VN' : 'en-US')}</p>
         </div>
 
         {/* Detailed Table Grid */}
@@ -326,15 +337,15 @@ export default function HistoryManager({
           <table className="w-full text-left border-collapse text-xs print-table">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-black uppercase tracking-widest text-[9px]">
-                <th className="px-4 py-3 text-center w-12">STT</th>
-                <th className="px-4 py-3">Ký hiệu / Vị trí kết cấu</th>
-                <th className="px-4 py-3">Phân loại Thép</th>
-                <th className="px-4 py-3 text-center w-20">Mác Thép</th>
-                <th className="px-4 py-3 text-right">Khối lượng riêng (kg/m)</th>
-                <th className="px-4 py-3 text-center w-16">SL</th>
-                <th className="px-4 py-3 text-right">Khối lượng M (kg)</th>
-                <th className="px-4 py-3 text-right">Bề mặt sơn (m²)</th>
-                <th className="px-4 py-3 text-center w-20 no-print">Hành động</th>
+                <th className="px-4 py-3 text-center w-12">{language === 'vi' ? 'STT' : 'No.'}</th>
+                <th className="px-4 py-3">{language === 'vi' ? 'Ký hiệu / Vị trí kết cấu' : 'Structural Mark / Note'}</th>
+                <th className="px-4 py-3">{language === 'vi' ? 'Phân loại Thép' : 'Steel Profile Shape'}</th>
+                <th className="px-4 py-3 text-center w-20">{language === 'vi' ? 'Mác Thép' : 'Grade'}</th>
+                <th className="px-4 py-3 text-right">{language === 'vi' ? 'Khối lượng riêng (kg/m)' : 'Unit Weight (kg/m)'}</th>
+                <th className="px-4 py-3 text-center w-16">{language === 'vi' ? 'SL' : 'Qty'}</th>
+                <th className="px-4 py-3 text-right">{language === 'vi' ? 'Khối lượng M (kg)' : 'Total Weight M (kg)'}</th>
+                <th className="px-4 py-3 text-right">{language === 'vi' ? 'Bề mặt sơn (m²)' : 'Paint Surface (m²)'}</th>
+                <th className="px-4 py-3 text-center w-20 no-print">{language === 'vi' ? 'Hành động' : 'Actions'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-600">
@@ -342,58 +353,58 @@ export default function HistoryManager({
                 <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
                   <td 
                     className="px-4 py-3 text-center font-mono text-slate-400 font-bold cursor-pointer select-none hover:bg-slate-100/50 rounded-lg transition-all"
-                    title="Nhấp đúp chuột để sao chép số thứ tự"
-                    onDoubleClick={() => handleDoubleClickCopy((idx + 1).toString(), 'STT')}
+                    title={language === 'vi' ? 'Nhấp đúp chuột để sao chép số thứ tự' : 'Double click to copy STT'}
+                    onDoubleClick={() => handleDoubleClickCopy((idx + 1).toString(), language === 'vi' ? 'STT' : 'No.')}
                   >
                     {idx + 1}
                   </td>
                   <td 
                     className="px-4 py-3 font-extrabold text-slate-800 cursor-pointer select-none hover:bg-slate-100/40 rounded transition-all"
-                    title="Nhấp đúp chuột để sao chép Ký hiệu"
-                    onDoubleClick={() => handleDoubleClickCopy(item.note, 'Ký hiệu')}
+                    title={language === 'vi' ? 'Nhấp đúp chuột để sao chép Ký hiệu' : 'Double click to copy structural mark'}
+                    onDoubleClick={() => handleDoubleClickCopy(item.note, language === 'vi' ? 'Ký hiệu' : 'Mark')}
                   >
                     {item.note || '---'}
                   </td>
                   <td 
                     className="px-4 py-3 font-bold text-slate-500 text-[11px] cursor-pointer select-none hover:bg-slate-100/40 rounded transition-all"
-                    title="Nhấp đúp chuột để sao chép thông số Thép"
-                    onDoubleClick={() => handleDoubleClickCopy(item.shapeLabel, 'Thông số thép')}
+                    title={language === 'vi' ? 'Nhấp đúp chuột để sao chép thông số Thép' : 'Double click to copy shape stats'}
+                    onDoubleClick={() => handleDoubleClickCopy(item.shapeLabel, language === 'vi' ? 'Thông số thép' : 'Shape Parameters')}
                   >
                     <span className="font-extrabold text-slate-700 block text-[10px] uppercase tracking-wider">{item.shapeType} shape</span>
                     <span>{item.shapeLabel}</span>
                   </td>
                   <td 
                     className="px-4 py-3 text-center font-mono font-bold text-slate-700 cursor-pointer select-none hover:bg-slate-100/40 rounded transition-all"
-                    title="Nhấp đúp chuột để sao chép Mác thép"
-                    onDoubleClick={() => handleDoubleClickCopy(item.gradeName, 'Mác thép')}
+                    title={language === 'vi' ? 'Nhấp đúp chuột để sao chép Mác thép' : 'Double click to copy steel grade'}
+                    onDoubleClick={() => handleDoubleClickCopy(item.gradeName, language === 'vi' ? 'Mác thép' : 'Steel Grade')}
                   >
                     {item.gradeName}
                   </td>
                   <td 
                     className="px-4 py-3 text-right font-mono font-bold text-slate-600 cursor-pointer select-none hover:bg-slate-100/40 rounded transition-all"
-                    title="Nhấp đúp chuột để sao chép Khối lượng riêng"
-                    onDoubleClick={() => handleDoubleClickCopy(item.results.weightPerMeter.toFixed(3), 'Khối lượng riêng')}
+                    title={language === 'vi' ? 'Nhấp đúp chuột để sao chép Khối lượng riêng' : 'Double click to copy unit weight'}
+                    onDoubleClick={() => handleDoubleClickCopy(item.results.weightPerMeter.toFixed(3), language === 'vi' ? 'Khối lượng riêng' : 'Unit Weight')}
                   >
                     {formatWithCommas(item.results.weightPerMeter, 3)}
                   </td>
                   <td 
                     className="px-4 py-3 text-center font-mono font-black text-slate-800 cursor-pointer select-none hover:bg-slate-100/40 rounded transition-all"
-                    title="Nhấp đúp chuột để sao chép Số lượng"
-                    onDoubleClick={() => handleDoubleClickCopy(item.quantity.toString(), 'Số lượng')}
+                    title={language === 'vi' ? 'Nhấp đúp chuột để sao chép Số lượng' : 'Double click to copy Quantity'}
+                    onDoubleClick={() => handleDoubleClickCopy(item.quantity.toString(), language === 'vi' ? 'Số lượng' : 'Quantity')}
                   >
                     {item.quantity}
                   </td>
                   <td 
                     className="px-4 py-3 text-right font-mono font-black text-slate-800 cursor-pointer select-none hover:bg-slate-100/40 rounded transition-colors"
-                    title="Nhấp đúp chuột để sao chép Tổng khối lượng M"
-                    onDoubleClick={() => handleDoubleClickCopy(formatWithCommas(item.results.totalWeightKg * item.quantity, 2), 'Tổng khối lượng M')}
+                    title={language === 'vi' ? 'Nhấp đúp chuột để sao chép Tổng khối lượng M' : 'Double click to copy Total Weight M'}
+                    onDoubleClick={() => handleDoubleClickCopy(formatWithCommas(item.results.totalWeightKg * item.quantity, 2), language === 'vi' ? 'Tổng khối lượng M' : 'Total Weight M')}
                   >
                     {formatWithCommas(item.results.totalWeightKg * item.quantity, 2)}
                   </td>
                   <td 
                     className="px-4 py-3 text-right font-mono font-black text-emerald-600 cursor-pointer select-none hover:bg-slate-100/40 rounded transition-colors"
-                    title="Nhấp đúp chuột để sao chép Bề mặt sơn"
-                    onDoubleClick={() => handleDoubleClickCopy(formatWithCommas(item.results.totalPaintAreaM2 * item.quantity, 3), 'Bề mặt sơn')}
+                    title={language === 'vi' ? 'Nhấp đúp chuột để sao chép Bề mặt sơn' : 'Double click to copy paint area'}
+                    onDoubleClick={() => handleDoubleClickCopy(formatWithCommas(item.results.totalPaintAreaM2 * item.quantity, 3), language === 'vi' ? 'Bề mặt sơn' : 'Paint Surface Area')}
                   >
                     {formatWithCommas(item.results.totalPaintAreaM2 * item.quantity, 3)}
                   </td>
@@ -401,7 +412,7 @@ export default function HistoryManager({
                     <button
                       onClick={() => startEditing(item)}
                       className="text-slate-400 hover:text-orange-500 transition-colors cursor-pointer p-1 rounded hover:bg-slate-100"
-                      title="Chỉnh sửa cấu kiện"
+                      title={language === 'vi' ? 'Chỉnh sửa cấu kiện' : 'Edit profile'}
                       id={`btn-edit-entry-${item.id}`}
                     >
                       <Pencil className="w-3.5 h-3.5" />
@@ -409,7 +420,7 @@ export default function HistoryManager({
                     <button
                       onClick={() => onDeleteHistoryEntry(item.id)}
                       className="text-slate-400 hover:text-red-500 transition-colors cursor-pointer p-1 rounded hover:bg-slate-100"
-                      title="Xóa cấu kiện"
+                      title={language === 'vi' ? 'Xóa cấu kiện' : 'Delete profile'}
                       id={`btn-del-entry-${item.id}`}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -420,7 +431,7 @@ export default function HistoryManager({
               {filteredHistory.length === 0 && (
                 <tr>
                   <td colSpan={9} className="px-4 py-10 text-center text-slate-400 font-bold">
-                    Bảng thống kê trống hoặc không tìm thấy dữ liệu cấu kiện trùng khớp.
+                    {language === 'vi' ? 'Bảng thống kê trống hoặc không tìm thấy dữ liệu cấu kiện trùng khớp.' : 'The bill of materials is currently empty or no matched entries were found.'}
                   </td>
                 </tr>
               )}
@@ -432,31 +443,31 @@ export default function HistoryManager({
         {filteredHistory.length > 0 && (
           <div className="bg-slate-50 p-4.5 rounded-xl border border-slate-150 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center mt-3 shadow-inner">
             <div>
-              <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider block">Tổng số lượng thép</span>
+              <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider block">{language === 'vi' ? 'Tổng số lượng thép' : 'Total Quantity'}</span>
               <span className="text-sm font-black font-mono text-slate-700 block mt-1">
                 {filteredHistory.reduce((s, i) => s + i.quantity, 0)}{' '}
-                <span className="text-[10px] font-bold font-sans text-slate-400">Thanh/Tấm</span>
+                <span className="text-[10px] font-bold font-sans text-slate-400">{language === 'vi' ? 'Thanh/Tấm' : 'Bars/Plates'}</span>
               </span>
             </div>
             <div>
-              <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider block">Tổng trọng lượng</span>
+              <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider block">{language === 'vi' ? 'Tổng trọng lượng' : 'Total Steel Weight'}</span>
               <span className="text-sm font-black font-mono text-orange-600 block mt-1">
                 {formatWithCommas(totalWeightKg / 1000, 4)}{' '}
-                <span className="text-[10px] font-bold font-sans text-orange-400">Tấn</span>
+                <span className="text-[10px] font-bold font-sans text-orange-400">{language === 'vi' ? 'Tấn' : 'Tons'}</span>
               </span>
             </div>
             <div>
-              <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider block">Diện tích sơn bảo ôn</span>
+              <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider block">{language === 'vi' ? 'Diện tích sơn bảo ôn' : 'Coating Surface Area'}</span>
               <span className="text-sm font-black font-mono text-emerald-600 block mt-1">
                 {formatWithCommas(totalPaintM2, 3)}{' '}
                 <span className="text-[10px] font-bold font-sans text-emerald-500">m²</span>
               </span>
             </div>
             <div>
-              <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider block">Sơn phủ trung bình</span>
+              <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider block">{language === 'vi' ? 'Sơn phủ trung bình' : 'Average Coating Ratio'}</span>
               <span className="text-sm font-black font-mono text-slate-700 block mt-1">
                 {formatWithCommas(totalWeightKg > 0 ? totalPaintM2 / (totalWeightKg / 1000) : 0, 1)}{' '}
-                <span className="text-[10px] font-bold font-sans text-slate-400">m²/Tấn</span>
+                <span className="text-[10px] font-bold font-sans text-slate-400">{language === 'vi' ? 'm²/Tấn' : 'm²/Ton'}</span>
               </span>
             </div>
           </div>
@@ -479,8 +490,8 @@ export default function HistoryManager({
                     <Pencil className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-black text-slate-800">Chỉnh sửa cấu kiện</h4>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Phân loại: {editingItem.shapeType} shape</p>
+                    <h4 className="text-sm font-black text-slate-800">{language === 'vi' ? 'Chỉnh sửa cấu kiện' : 'Edit Structural Profile'}</h4>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{language === 'vi' ? 'Phân loại' : 'Category'}: {editingItem.shapeType} shape</p>
                   </div>
                 </div>
                 <button
@@ -495,19 +506,19 @@ export default function HistoryManager({
               <div className="p-5 space-y-4 max-h-[60vh] overflow-y-auto">
                 {/* Note / Ky hieu */}
                 <div className="space-y-1.5">
-                  <label className="text-[10.5px] text-slate-500 font-extrabold uppercase tracking-wider block">Ký hiệu / Vị trí kết cấu</label>
+                  <label className="text-[10.5px] text-slate-500 font-extrabold uppercase tracking-wider block">{language === 'vi' ? 'Ký hiệu / Vị trí kết cấu' : 'Structural Mark / Location note'}</label>
                   <input
                     type="text"
                     value={tempNote}
                     onChange={(e) => setTempNote(e.target.value)}
                     className="w-full px-3 py-2 text-xs font-bold text-slate-800 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-50/50 focus:bg-white transition-all"
-                    placeholder="Ký hiệu vị trí hoặc ghi chú..."
+                    placeholder={language === 'vi' ? 'Ký hiệu vị trí hoặc ghi chú...' : 'Location mark or notes...'}
                   />
                 </div>
 
                 {/* Grade selection */}
                 <div className="space-y-1.5">
-                  <label className="text-[10.5px] text-slate-500 font-extrabold uppercase tracking-wider block">Mác thép</label>
+                  <label className="text-[10.5px] text-slate-500 font-extrabold uppercase tracking-wider block">{language === 'vi' ? 'Mác thép' : 'Steel Grade'}</label>
                   <select
                     value={tempGradeId}
                     onChange={(e) => setTempGradeId(e.target.value)}
@@ -523,7 +534,7 @@ export default function HistoryManager({
 
                 {/* Quantity input */}
                 <div className="space-y-1.5">
-                  <label className="text-[10.5px] text-slate-500 font-extrabold uppercase tracking-wider block">Số lượng cấu kiện (SL)</label>
+                  <label className="text-[10.5px] text-slate-500 font-extrabold uppercase tracking-wider block">{language === 'vi' ? 'Số lượng cấu kiện (SL)' : 'Member Quantity (Qty)'}</label>
                   <input
                     type="number"
                     min="1"
@@ -543,11 +554,11 @@ export default function HistoryManager({
 
                 {/* Dimensions inputs */}
                 <div className="space-y-2 border-t border-slate-100 pt-3">
-                  <span className="text-[10.5px] text-slate-500 font-extrabold uppercase tracking-wider block mb-2">Kích thước hình học (mm)</span>
+                  <span className="text-[10.5px] text-slate-500 font-extrabold uppercase tracking-wider block mb-2">{language === 'vi' ? 'Kích thước hình học (mm)' : 'Geometrical Dimensions (mm)'}</span>
                   <div className="grid grid-cols-2 gap-3">
                     {Object.keys(tempInputs).map((key) => {
                       // Custom labels or descriptions for steel dimensions keys
-                      const labelMap: Record<string, string> = {
+                      const labelMap: Record<string, string> = language === 'vi' ? {
                         L: 'Chiều dài L (mm)',
                         w: 'Bề rộng w (mm)',
                         h: 'Chiều cao h (mm)',
@@ -559,8 +570,20 @@ export default function HistoryManager({
                         tf: 'Độ dày cánh tf (mm)',
                         r: 'Bán kính r (mm)',
                         a: 'Cạnh a (mm)',
+                      } : {
+                        L: 'Length L (mm)',
+                        w: 'Width w (mm)',
+                        h: 'Height h (mm)',
+                        t: 'Thickness t (mm)',
+                        d: 'Diameter d (mm)',
+                        D: 'Outer Diameter D (mm)',
+                        b: 'Flange Width b (mm)',
+                        tw: 'Web Thickness tw (mm)',
+                        tf: 'Flange Thickness tf (mm)',
+                        r: 'Radius r (mm)',
+                        a: 'Side length a (mm)',
                       };
-                      const displayLabel = labelMap[key] || `Thông số ${key.toUpperCase()}`;
+                      const displayLabel = labelMap[key] || (language === 'vi' ? `Thông số ${key.toUpperCase()}` : `Dimension ${key.toUpperCase()}`);
 
                       return (
                         <div key={key} className="space-y-1">
@@ -599,23 +622,23 @@ export default function HistoryManager({
 
                   return (
                     <div className="bg-slate-50/80 rounded-xl p-3.5 border border-slate-100 space-y-2 mt-4">
-                      <span className="text-[9.5px] text-slate-400 font-black uppercase tracking-wider block">Kết quả tính toán sau chỉnh sửa</span>
+                      <span className="text-[9.5px] text-slate-400 font-black uppercase tracking-wider block">{language === 'vi' ? 'Kết quả tính toán sau chỉnh sửa' : 'Updated Calculation Results'}</span>
                       
                       <div className="grid grid-cols-2 gap-2 text-xs">
                         <div>
-                          <span className="text-slate-400 text-[10px] font-semibold block">Khối lượng riêng (kg/m):</span>
+                          <span className="text-slate-400 text-[10px] font-semibold block">{language === 'vi' ? 'Khối lượng riêng (kg/m):' : 'Unit Weight (kg/m):'}</span>
                           <span className="font-mono font-black text-slate-700 block text-xs mt-0.5">
                             {formatWithCommas(tempWeightPerMeter, 3)}
                           </span>
                         </div>
                         <div>
-                          <span className="text-slate-400 text-[10px] font-semibold block">Tổng khối lượng M (kg):</span>
+                          <span className="text-slate-400 text-[10px] font-semibold block">{language === 'vi' ? 'Tổng khối lượng M (kg):' : 'Total Weight M (kg):'}</span>
                           <span className="font-mono font-black text-orange-600 block text-xs mt-0.5">
                             {formatWithCommas(tempTotalWeight, 2)}
                           </span>
                         </div>
                         <div className="col-span-2 border-t border-slate-100 pt-1.5 mt-1">
-                          <span className="text-slate-400 text-[10px] font-semibold block">Tổng diện tích sơn (m²):</span>
+                          <span className="text-slate-400 text-[10px] font-semibold block">{language === 'vi' ? 'Tổng diện tích sơn (m²):' : 'Total Paint Surface (m²):'}</span>
                           <span className="font-mono font-black text-emerald-600 block text-xs mt-0.5">
                             {formatWithCommas(tempPaintArea, 3)}
                           </span>
@@ -633,14 +656,14 @@ export default function HistoryManager({
                   onClick={() => setEditingItem(null)}
                   className="px-4 py-2 text-xs font-black text-slate-500 hover:text-slate-700 bg-white border border-slate-200 rounded-xl shadow-sm hover:bg-slate-50 transition-all cursor-pointer"
                 >
-                  Hủy bỏ
+                  {language === 'vi' ? 'Hủy bỏ' : 'Cancel'}
                 </button>
                 <button
                   type="button"
                   onClick={handleSaveEdit}
                   className="px-4 py-2 text-xs font-black text-white bg-orange-500 hover:bg-orange-600 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer"
                 >
-                  <Check className="w-4 h-4" /> Lưu thay đổi
+                  <Check className="w-4 h-4" /> {language === 'vi' ? 'Lưu thay đổi' : 'Save Changes'}
                 </button>
               </div>
             </div>

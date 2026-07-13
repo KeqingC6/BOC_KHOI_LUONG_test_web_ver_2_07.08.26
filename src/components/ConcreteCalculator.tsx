@@ -2,12 +2,14 @@ import { useState, useEffect, useId } from 'react';
 import { ConcreteClass, SavedConcreteItem } from '../types';
 import { formatWithCommas } from '../utils';
 import { Building, Plus, Trash2, ShieldCheck } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ConcreteCalculatorProps {
   concreteClasses: ConcreteClass[];
 }
 
 export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculatorProps) {
+  const { t, language } = useLanguage();
   const [memberType, setMemberType] = useState<'COLUMN_RECT' | 'COLUMN_CIRC' | 'BEAM' | 'SLAB'>('COLUMN_RECT');
   const [concreteId, setConcreteId] = useState('b20');
   const [qty, setQty] = useState<number>(1);
@@ -91,15 +93,10 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
   const results = calculateConcreteResults();
 
   const handleSaveItem = () => {
-    const typeLabelMap = {
-      COLUMN_RECT: 'Cột chữ nhật',
-      COLUMN_CIRC: 'Cột tròn',
-      BEAM: 'Dầm bê tông',
-      SLAB: 'Sàn bê tông',
-    };
+    const defaultName = `${t('concreteCalc.memberTypes.' + memberType)} ${savedList.length + 1}`;
     const newItem: SavedConcreteItem = {
       id: `conc-${Date.now()}`,
-      name: name.trim() || `${typeLabelMap[memberType]} ${savedList.length + 1}`,
+      name: name.trim() || defaultName,
       type: memberType,
       qty,
       concreteClass: selectedConcrete.className,
@@ -224,16 +221,26 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
   const btr = { x: x0_3d + w3D + dx, y: y0_3d - h3D + dy };
   const btl = { x: x0_3d + dx, y: y0_3d - h3D + dy };
 
+  // Translate helper for concrete dimension inputs
+  const getDimLabel = (k: string) => {
+    if (k === 'b') return t('concreteCalc.b');
+    if (k === 'h') return memberType === 'SLAB' ? t('concreteCalc.hSlab') : t('concreteCalc.h');
+    if (k === 'H' || k === 'L') return t('concreteCalc.L');
+    if (k === 'D') return t('concreteCalc.D');
+    if (k === 'B') return t('concreteCalc.W');
+    return `${k}`;
+  };
+
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden p-6 space-y-6">
       <div className="flex items-center gap-2.5 pb-4 border-b border-slate-100">
         <Building className="text-orange-500 w-5 h-5" />
         <div>
           <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest">
-            Tính toán bê tông & cốt thép cấu kiện
+            {t('concreteCalc.selectMember')}
           </h3>
           <p className="text-[10px] text-slate-400 font-extrabold uppercase mt-0.5 tracking-wider flex items-center gap-1">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Tiêu chuẩn TCVN 5574:2018
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> {language === 'vi' ? 'Tiêu chuẩn TCVN 5574:2018' : 'Standard TCVN 5574:2018'}
           </p>
         </div>
       </div>
@@ -243,17 +250,17 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
         <div className="lg:col-span-7 space-y-4">
           {/* Member selector */}
           <div className="grid grid-cols-4 gap-2">
-            {(['COLUMN_RECT', 'COLUMN_CIRC', 'BEAM', 'SLAB'] as const).map((t) => (
+            {(['COLUMN_RECT', 'COLUMN_CIRC', 'BEAM', 'SLAB'] as const).map((tType) => (
               <button
-                key={t}
-                onClick={() => setMemberType(t)}
+                key={tType}
+                onClick={() => setMemberType(tType)}
                 className={`py-2 px-1.5 rounded-lg text-[10.5px] font-extrabold border transition-colors cursor-pointer text-center truncate ${
-                  memberType === t
+                  memberType === tType
                     ? 'bg-slate-900 border-slate-900 text-white shadow-sm'
                     : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                 }`}
               >
-                {t === 'COLUMN_RECT' ? 'Cột HCN' : t === 'COLUMN_CIRC' ? 'Cột Tròn' : t === 'BEAM' ? 'Dầm / Giằng' : 'Sàn / Móng'}
+                {tType === 'COLUMN_RECT' ? (language === 'vi' ? 'Cột HCN' : 'Rect Column') : tType === 'COLUMN_CIRC' ? (language === 'vi' ? 'Cột Tròn' : 'Circ Column') : tType === 'BEAM' ? (language === 'vi' ? 'Dầm / Giằng' : 'Beam') : (language === 'vi' ? 'Sàn / Móng' : 'Slab')}
               </button>
             ))}
           </div>
@@ -265,7 +272,7 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
               return (
                 <div key={key} className="space-y-1">
                   <label htmlFor={inputId} className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-500">
-                    {memberType === 'COLUMN_RECT' && key === 'h' ? 'L (mm)' : (key === 'H' || key === 'L' || key === 'B' ? `${key} (m)` : `${key} (mm)`)}
+                    {getDimLabel(key)}
                   </label>
                   <input
                     type="number"
@@ -284,7 +291,7 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
           {/* Strength, quantity and name */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <label htmlFor={selectConcreteId} className="block text-xs font-extrabold text-slate-600">Cấp độ bền bê tông</label>
+              <label htmlFor={selectConcreteId} className="block text-xs font-extrabold text-slate-600">{t('concreteCalc.concreteClass')}</label>
               <select
                 id={selectConcreteId}
                 value={concreteId}
@@ -293,14 +300,14 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
               >
                 {concreteClasses.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.className} (Mác {c.gradeName})
+                    {c.className} ({language === 'vi' ? 'Mác' : 'Mark'} {c.gradeName})
                   </option>
                 ))}
               </select>
             </div>
 
             <div className="space-y-1">
-              <label htmlFor={inputQtyId} className="block text-xs font-extrabold text-slate-600">Số lượng cấu kiện</label>
+              <label htmlFor={inputQtyId} className="block text-xs font-extrabold text-slate-600">{t('concreteCalc.qty')}</label>
               <input
                 type="number"
                 id={inputQtyId}
@@ -312,11 +319,11 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
             </div>
 
             <div className="space-y-1">
-              <label htmlFor={inputNameId} className="block text-xs font-extrabold text-slate-600">Ký hiệu kết cấu</label>
+              <label htmlFor={inputNameId} className="block text-xs font-extrabold text-slate-600">{t('concreteCalc.cols.name')}</label>
               <input
                 type="text"
                 id={inputNameId}
-                placeholder="Ví dụ: Cột C1 dầm D3..."
+                placeholder={language === 'vi' ? 'Ví dụ: Cột C1 dầm D3...' : 'e.g., Column C1, Beam B3...'}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold focus:bg-white focus:ring-1 focus:ring-slate-900 focus:outline-none"
@@ -328,40 +335,40 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
             onClick={handleSaveItem}
             className="w-full py-2.5 bg-slate-900 hover:bg-slate-850 active:scale-[0.99] text-white text-xs font-extrabold rounded-lg shadow-sm transition-all cursor-pointer font-sans uppercase tracking-wider flex items-center justify-center gap-1.5"
           >
-            <Plus className="w-4 h-4" /> Lưu thống kê bê tông
+            <Plus className="w-4 h-4" /> {t('concreteCalc.saveMember')}
           </button>
         </div>
 
         {/* Results Box */}
         <div className="lg:col-span-5 bg-orange-50/40 p-5 rounded-xl border border-orange-200/40 space-y-4">
           <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest block flex items-center gap-1">
-            <Building className="w-3.5 h-3.5" /> Tổng lượng bê tông & thép dự kiến
+            <Building className="w-3.5 h-3.5" /> {t('concreteCalc.resultsTitle')}
           </span>
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-white p-3 rounded-lg border border-orange-100 shadow-xs">
-              <span className="text-[9px] text-slate-400 font-extrabold uppercase block">Thể tích V</span>
+              <span className="text-[9px] text-slate-400 font-extrabold uppercase block">{t('concreteCalc.results.concreteVolume')}</span>
               <span className="text-base font-black font-mono text-slate-800">
                 {formatWithCommas(results.concreteVol, 3)}{' '}
                 <span className="text-[10px] text-slate-500 font-normal">m³</span>
               </span>
             </div>
             <div className="bg-white p-3 rounded-lg border border-orange-100 shadow-xs">
-              <span className="text-[9px] text-slate-400 font-extrabold uppercase block">Trọng lượng BT</span>
+              <span className="text-[9px] text-slate-400 font-extrabold uppercase block">{t('concreteCalc.results.concreteWeight')}</span>
               <span className="text-base font-black font-mono text-slate-800">
                 {formatWithCommas(results.concreteWt, 2)}{' '}
-                <span className="text-[10px] text-slate-500 font-normal">Tấn</span>
+                <span className="text-[10px] text-slate-500 font-normal">{language === 'vi' ? 'Tấn' : 'Tons'}</span>
               </span>
             </div>
           </div>
           <div className="grid grid-cols-1 gap-4">
             <div className="bg-white p-3 rounded-lg border border-orange-100 shadow-xs">
-              <span className="text-[9px] text-slate-400 font-extrabold uppercase block">Lượng thép định suất</span>
+              <span className="text-[9px] text-slate-400 font-extrabold uppercase block">{t('concreteCalc.results.steelWeight')}</span>
               <span className="text-lg font-black font-mono text-blue-600">
                 {formatWithCommas(results.steelWt, 1)}{' '}
                 <span className="text-[10px] text-slate-500 font-normal font-sans">kg</span>
               </span>
               <span className="text-[9.5px] text-slate-400 font-extrabold uppercase tracking-wider block mt-1">
-                Tỷ suất hàm lượng: {formatWithCommas(results.steelRatio, 1)} kg/m³
+                {language === 'vi' ? 'Tỷ suất hàm lượng: ' : 'Average steel ratio: '}{formatWithCommas(results.steelRatio, 1)} kg/m³
               </span>
             </div>
           </div>
@@ -373,7 +380,7 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 flex flex-col justify-between relative">
           <div className="flex justify-between items-center pb-2 border-b border-slate-200">
             <span className="text-xs font-black text-slate-500 uppercase tracking-widest">
-              HÌNH VẼ MINH HỌA ĐỘNG (MM)
+              {language === 'vi' ? 'HÌNH VẼ MINH HỌA ĐỘNG (MM)' : 'LIVE INTERACTIVE DRAWING (MM)'}
             </span>
           </div>
 
@@ -391,7 +398,7 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
               <g>
                 <rect x="10" y="25" width="370" height="255" fill="none" stroke="#e2e8f0" strokeWidth="1" rx="8" />
                 <text x="195" y="42" textAnchor="middle" fill="#64748b" className="text-[10px] font-extrabold tracking-widest uppercase">
-                  Phối cảnh 3D cấu kiện bê tông
+                  {language === 'vi' ? 'Phối cảnh 3D cấu kiện bê tông' : '3D Perspective of Concrete Member'}
                 </text>
 
                 {memberType === 'COLUMN_RECT' && (
@@ -449,7 +456,7 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
                       pointerEvents="none"
                     />
 
-                    <text x="195" y="60" textAnchor="middle" fill="#0f172a" className="text-[10px] font-black tracking-widest bg-slate-100">BÊ TÔNG CỘT</text>
+                    <text x="195" y="60" textAnchor="middle" fill="#0f172a" className="text-[10px] font-black tracking-widest bg-slate-100">{language === 'vi' ? 'BÊ TÔNG CỘT' : 'COLUMN CONCRETE'}</text>
 
                     {/* b (Width) */}
                     <line x1={fbl.x} y1={fbl.y + 12} x2={fbr.x} y2={fbr.y + 12} stroke="#64748b" strokeWidth="0.8" strokeDasharray="2,2" />
@@ -487,7 +494,7 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
                     <ellipse cx={x0_3d + rx3d} cy={y0_3d - h3D} rx={rx3d} ry={ry3d} fill="url(#concrete-pattern-concrete)" stroke="#64748b" strokeWidth="1.2" />
                     <ellipse cx={x0_3d + rx3d} cy={y0_3d - h3D} rx={rx3d} ry={ry3d} fill="#ffffff" fillOpacity="0.3" pointerEvents="none" />
 
-                    <text x="195" y="60" textAnchor="middle" fill="#0f172a" className="text-[10px] font-black tracking-widest">CỘT TRÒN BTCT</text>
+                    <text x="195" y="60" textAnchor="middle" fill="#0f172a" className="text-[10px] font-black tracking-widest">{language === 'vi' ? 'CỘT TRÒN BTCT' : 'RC CIRCULAR COLUMN'}</text>
 
                     {/* D (Diameter) */}
                     <line x1={x0_3d} y1={y0_3d + 12} x2={x0_3d + w3D} y2={y0_3d + 12} stroke="#64748b" strokeWidth="0.8" strokeDasharray="2,2" />
@@ -554,7 +561,7 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
                       pointerEvents="none"
                     />
 
-                    <text x={fbl.x + w3D / 2} y={fbl.y - h3D / 2 + 3} textAnchor="middle" fill="#475569" className="text-[10px] font-black tracking-wider">DẦM BTCT</text>
+                    <text x={fbl.x + w3D / 2} y={fbl.y - h3D / 2 + 3} textAnchor="middle" fill="#475569" className="text-[10px] font-black tracking-wider">{language === 'vi' ? 'DẦM BTCT' : 'RC BEAM'}</text>
 
                     {/* L (Length) */}
                     <line x1={fbl.x} y1={fbl.y + 12} x2={fbr.x} y2={fbr.y + 12} stroke="#64748b" strokeWidth="0.8" strokeDasharray="2,2" />
@@ -626,7 +633,7 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
                       pointerEvents="none"
                     />
 
-                    <text x={fbl.x + w3D / 2} y={fbl.y - h3D / 2 + 3} textAnchor="middle" fill="#475569" className="text-[10px] font-black tracking-wider">SÀN / MÓNG BTCT</text>
+                    <text x={fbl.x + w3D / 2} y={fbl.y - h3D / 2 + 3} textAnchor="middle" fill="#475569" className="text-[10px] font-black tracking-wider">{language === 'vi' ? 'SÀN / MÓNG BTCT' : 'RC SLAB / FOOTING'}</text>
 
                     {/* B (Width) */}
                     <line x1={fbl.x} y1={fbl.y + 12} x2={fbr.x} y2={fbr.y + 12} stroke="#64748b" strokeWidth="0.8" strokeDasharray="2,2" />
@@ -650,7 +657,7 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
               <g>
                 <rect x="400" y="25" width="390" height="255" fill="none" stroke="#e2e8f0" strokeWidth="1" rx="8" />
                 <text x="595" y="42" textAnchor="middle" fill="#64748b" className="text-[10px] font-extrabold tracking-widest uppercase">
-                  Mặt cắt ngang & Bố trí cốt thép
+                  {language === 'vi' ? 'Mặt cắt ngang & Bố trí cốt thép' : 'Cross Section & Rebar Details'}
                 </text>
 
                 {memberType === 'COLUMN_RECT' && (
@@ -697,7 +704,7 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
                       </>
                     )}
 
-                    <text x={cxSec} y={cySec + 4} textAnchor="middle" fill="#1e293b" className="text-[10px] font-extrabold tracking-widest bg-white/70">MẶT CẮT CỘT</text>
+                    <text x={cxSec} y={cySec + 4} textAnchor="middle" fill="#1e293b" className="text-[10px] font-extrabold tracking-widest bg-white/70">{language === 'vi' ? 'MẶT CẮT CỘT' : 'COLUMN SECTION'}</text>
 
                     {/* b Dimension */}
                     <line x1={xSec} y1={ySec + hSec + 12} x2={xSec + wSec} y2={ySec + hSec + 12} stroke="#475569" strokeWidth="0.8" />
@@ -731,7 +738,7 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
                       );
                     })}
 
-                    <text x={cxSec} y={cySec + 4} textAnchor="middle" fill="#1e293b" className="text-[10px] font-extrabold tracking-widest">MẶT CẮT TRÒN</text>
+                    <text x={cxSec} y={cySec + 4} textAnchor="middle" fill="#1e293b" className="text-[10px] font-extrabold tracking-widest">{language === 'vi' ? 'MẶT CẮT TRÒN' : 'CIRCULAR SECTION'}</text>
 
                     {/* Diameter Dimension line */}
                     <line x1={cxSec - rSec} y1={cySec + rSec + 12} x2={cxSec + rSec} y2={cySec + rSec + 12} stroke="#475569" strokeWidth="0.8" />
@@ -773,7 +780,7 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
                     <circle cx={xSec + wSec - 11} cy={ySec + hSec - 11} r="5.5" fill="#f97316" stroke="#ea580c" strokeWidth="1" />
                     <circle cx={xSec + wSec / 2} cy={ySec + hSec - 11} r="5.5" fill="#f97316" stroke="#ea580c" strokeWidth="1" />
 
-                    <text x={cxSec} y={cySec - hSec / 2 + 25} textAnchor="middle" fill="#1e293b" className="text-[9px] font-extrabold tracking-widest">MẶT CẮT DẦM</text>
+                    <text x={cxSec} y={cySec - hSec / 2 + 25} textAnchor="middle" fill="#1e293b" className="text-[9px] font-extrabold tracking-widest">{language === 'vi' ? 'MẶT CẮT DẦM' : 'BEAM SECTION'}</text>
 
                     {/* b Dimension */}
                     <line x1={xSec} y1={ySec + hSec + 12} x2={xSec + wSec} y2={ySec + hSec + 12} stroke="#475569" strokeWidth="0.8" />
@@ -801,7 +808,7 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
                       <circle key={`b-${idx}`} cx={xSec + off} cy={ySec + hSec - 11} r="3" fill="#f97316" stroke="#ea580c" strokeWidth="0.8" />
                     ))}
 
-                    <text x={cxSec} y={cySec + hSec / 2 + 20} textAnchor="middle" fill="#1e293b" className="text-[9px] font-bold tracking-widest">MẶT CẮT SÀN (LƯỚI THÉP 1 LỚP)</text>
+                    <text x={cxSec} y={cySec + hSec / 2 + 20} textAnchor="middle" fill="#1e293b" className="text-[9px] font-bold tracking-widest">{language === 'vi' ? 'MẶT CẮT SÀN (LƯỚI THÉP 1 LỚP)' : 'SLAB SECTION (1-LAYER REBAR)'}</text>
 
                     {/* h thickness Dimension */}
                     <line x1={xSec + wSec + 12} y1={ySec} x2={xSec + wSec + 12} y2={ySec + hSec} stroke="#475569" strokeWidth="0.8" />
@@ -820,30 +827,30 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
         <div className="pt-4 border-t border-slate-100 animate-fadeIn">
           <div className="flex justify-between items-center mb-3">
             <h4 className="text-xs font-black text-slate-700 uppercase tracking-wider">
-              Danh sách cấu kiện đã lưu ({savedList.length})
+              {language === 'vi' ? 'Danh sách cấu kiện đã lưu' : 'Saved Members List'} ({savedList.length})
             </h4>
             <button
               onClick={() => {
-                if (confirm('Xóa toàn bộ thống kê bê tông?')) {
+                if (confirm(language === 'vi' ? 'Xóa toàn bộ thống kê bê tông?' : 'Clear all concrete calculations?')) {
                   setSavedList([]);
                 }
               }}
               className="text-[10.5px] text-red-600 hover:text-red-700 font-extrabold flex items-center gap-1 cursor-pointer"
             >
-              <Trash2 className="w-3.5 h-3.5" /> Xóa tất cả
+              <Trash2 className="w-3.5 h-3.5" /> {language === 'vi' ? 'Xóa tất cả' : 'Clear all'}
             </button>
           </div>
           <div className="overflow-x-auto rounded-xl border border-slate-200">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 font-black text-slate-500 uppercase tracking-widest text-[9px]">
-                  <th className="px-4 py-3 text-center w-12">STT</th>
-                  <th className="px-4 py-3">Ký hiệu</th>
-                  <th className="px-4 py-3">Phân loại cấu kiện</th>
-                  <th className="px-4 py-3 text-center">Bê tông</th>
-                  <th className="px-4 py-3 text-right">Khối lượng V (m³)</th>
-                  <th className="px-4 py-3 text-right">Lượng thép (kg)</th>
-                  <th className="px-4 py-3 text-center w-12">Xóa</th>
+                  <th className="px-4 py-3 text-center w-12">{language === 'vi' ? 'STT' : 'No.'}</th>
+                  <th className="px-4 py-3">{t('concreteCalc.cols.name')}</th>
+                  <th className="px-4 py-3">{language === 'vi' ? 'Phân loại cấu kiện' : 'Member Type'}</th>
+                  <th className="px-4 py-3 text-center">{language === 'vi' ? 'Bê tông' : 'Concrete'}</th>
+                  <th className="px-4 py-3 text-right">{language === 'vi' ? 'Khối lượng V (m³)' : 'Volume V (m³)'}</th>
+                  <th className="px-4 py-3 text-right">{language === 'vi' ? 'Lượng thép (kg)' : 'Steel (kg)'}</th>
+                  <th className="px-4 py-3 text-center w-12">{language === 'vi' ? 'Xóa' : 'Delete'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-600">
@@ -853,12 +860,12 @@ export default function ConcreteCalculator({ concreteClasses }: ConcreteCalculat
                     <td className="px-4 py-3.5 font-extrabold text-slate-800">{item.name}</td>
                     <td className="px-4 py-3.5 font-bold text-slate-500 text-[10.5px]">
                       {item.type === 'COLUMN_RECT'
-                        ? 'Cột hình chữ nhật'
+                        ? (language === 'vi' ? 'Cột chữ nhật' : 'Rectangular Column')
                         : item.type === 'COLUMN_CIRC'
-                        ? 'Cột tròn xoay'
+                        ? (language === 'vi' ? 'Cột tròn xoay' : 'Circular Column')
                         : item.type === 'BEAM'
-                        ? 'Dầm bê tông cốt thép'
-                        : 'Bản sàn / Móng bè'}
+                        ? (language === 'vi' ? 'Dầm bê tông cốt thép' : 'Concrete Beam')
+                        : (language === 'vi' ? 'Bản sàn / Móng bè' : 'Slab / Footing')}
                     </td>
                     <td className="px-4 py-3.5 text-center font-mono font-bold">{item.concreteClass}</td>
                     <td className="px-4 py-3.5 text-right font-mono font-black text-slate-800">

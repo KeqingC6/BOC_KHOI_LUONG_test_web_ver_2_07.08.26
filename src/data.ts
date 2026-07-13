@@ -334,14 +334,16 @@ export const CONVERSIONS: Record<string, ConversionCategory> = {
     name: 'Áp suất / Độ bền',
     icon: 'Zap',
     defaultLeft: 'mpa',
-    defaultRight: 'psi',
+    defaultRight: 'n_mm2',
     presets: [
       { label: '1 MPa', value: '1', unitLeft: 'mpa' },
+      { label: '1 N/mm²', value: '1', unitLeft: 'n_mm2' },
       { label: '1 Bar', value: '1', unitLeft: 'bar' }
     ],
     units: {
       pa: { name: 'Pascal (Pa)', factor: 1 },
       mpa: { name: 'Megapascal (MPa)', factor: 1e6 },
+      n_mm2: { name: 'N/mm² (Newton/mm²)', factor: 1e6 },
       bar: { name: 'Bar', factor: 100000 },
       psi: { name: 'PSI', factor: 6894.76 }
     }
@@ -358,6 +360,23 @@ export const CONVERSIONS: Record<string, ConversionCategory> = {
     units: {
       c: { name: 'Độ C (°C)', factor: 1 },
       f: { name: 'Độ F (°F)', factor: 1 }
+    }
+  },
+  force: {
+    name: 'Lực / Tải trọng',
+    icon: 'Weight',
+    defaultLeft: 'kn',
+    defaultRight: 'tf',
+    presets: [
+      { label: '1 kN', value: '1', unitLeft: 'kn' },
+      { label: '1 Tấn (tf)', value: '1', unitLeft: 'tf' },
+      { label: '100 kg (kgf)', value: '100', unitLeft: 'kgf' }
+    ],
+    units: {
+      n: { name: 'Newton (N)', factor: 1 },
+      kn: { name: 'Kilonewton (kN)', factor: 1000 },
+      kgf: { name: 'Kilogram (kgf)', factor: 9.80665 },
+      tf: { name: 'Tấn (tf)', factor: 9806.65 }
     }
   }
 };

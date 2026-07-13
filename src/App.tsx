@@ -9,8 +9,10 @@ import HistoryManager from './components/HistoryManager';
 import UnitConverter from './components/UnitConverter';
 import LinearInterpolator from './components/LinearInterpolator';
 import { HardHat, Calculator, Building, Database, FolderOpen, ArrowLeftRight, CheckCircle2, Layers } from 'lucide-react';
+import { useLanguage } from './contexts/LanguageContext';
 
 export default function App() {
+  const { language, setLanguage, t } = useLanguage();
   const [activeTab, setActiveTab] = useState<string>('calculator');
   const [grades, setGrades] = useState<SteelGrade[]>(() => {
     const saved = localStorage.getItem('steel_calc_grades');
@@ -107,38 +109,37 @@ export default function App() {
   const handleResetGrades = () => {
     setGrades(INITIAL_STEEL_GRADES);
     setConcreteClasses(INITIAL_CONCRETE_CLASSES);
-    showToast('Đã khôi phục dữ liệu gốc mác thép và cấp độ bền bê tông.');
+    showToast(language === 'vi' ? 'Đã khôi phục dữ liệu gốc mác thép và cấp độ bền bê tông.' : 'Restored original steel grades and concrete classes.');
   };
 
   const handleAddGrade = (newGrade: SteelGrade) => {
     if (grades.some((g) => g.name.toLowerCase() === newGrade.name.toLowerCase())) {
-      showToast(`Mác thép "${newGrade.name}" đã tồn tại!`);
+      showToast(language === 'vi' ? `Mác thép "${newGrade.name}" đã tồn tại!` : `Steel grade "${newGrade.name}" already exists!`);
       return false;
     }
     setGrades([...grades, newGrade]);
-    showToast(`Đã thêm mác thép "${newGrade.name}" thành công.`);
+    showToast(language === 'vi' ? `Đã thêm mác thép "${newGrade.name}" thành công.` : `Successfully added steel grade "${newGrade.name}".`);
     return true;
   };
 
   const handleDeleteGrade = (id: string) => {
-    // Prevent deleting default grades if we want to protect them, or allow deleting any
     setGrades(grades.filter((g) => g.id !== id));
-    showToast('Đã xóa mác thép khỏi danh mục.');
+    showToast(language === 'vi' ? 'Đã xóa mác thép khỏi danh mục.' : 'Deleted steel grade from list.');
   };
 
   const handleAddConcreteClass = (newClass: ConcreteClass) => {
     if (concreteClasses.some((c) => c.className.toLowerCase() === newClass.className.toLowerCase())) {
-      showToast(`Cấp độ bền "${newClass.className}" đã tồn tại!`);
+      showToast(language === 'vi' ? `Cấp độ bền "${newClass.className}" đã tồn tại!` : `Concrete class "${newClass.className}" already exists!`);
       return false;
     }
     setConcreteClasses([...concreteClasses, newClass]);
-    showToast(`Đã thêm cấp độ bền "${newClass.className}" thành công.`);
+    showToast(language === 'vi' ? `Đã thêm cấp độ bền "${newClass.className}" thành công.` : `Successfully added concrete class "${newClass.className}".`);
     return true;
   };
 
   const handleDeleteConcreteClass = (id: string) => {
     setConcreteClasses(concreteClasses.filter((c) => c.id !== id));
-    showToast('Đã xóa cấp độ bền bê tông khỏi danh mục.');
+    showToast(language === 'vi' ? 'Đã xóa cấp độ bền bê tông khỏi danh mục.' : 'Deleted concrete class from list.');
   };
 
   const handleCreateTable = (name: string) => {
@@ -147,19 +148,19 @@ export default function App() {
     setBomTables([...bomTables, newT]);
     setActiveTableId(id);
     setTargetTableId(id);
-    showToast(`Đã tạo bảng kê "${name}"!`);
+    showToast(language === 'vi' ? `Đã tạo bảng kê "${name}"!` : `Created bill of materials "${name}"!`);
   };
 
   const handleDeleteTable = (id: string) => {
     if (bomTables.length <= 1) {
-      showToast('Không thể xóa bảng kê duy nhất!');
+      showToast(language === 'vi' ? 'Không thể xóa bảng kê duy nhất!' : 'Cannot delete the unique project table!');
       return;
     }
     const updated = bomTables.filter((t) => t.id !== id);
     setBomTables(updated);
     if (activeTableId === id) setActiveTableId(updated[0].id);
     if (targetTableId === id) setTargetTableId(updated[0].id);
-    showToast('Đã xóa bảng kê.');
+    showToast(language === 'vi' ? 'Đã xóa bảng kê.' : 'Deleted project table.');
   };
 
   const handleSaveToHistory = (
@@ -193,7 +194,7 @@ export default function App() {
         return t;
       })
     );
-    showToast('Đã lưu cấu kiện vào bảng thống kê!');
+    showToast(language === 'vi' ? 'Đã lưu cấu kiện vào bảng thống kê!' : 'Saved member profile to the BOM table!');
   };
 
   const handleDeleteHistoryEntry = (id: string) => {
@@ -205,7 +206,7 @@ export default function App() {
         return t;
       })
     );
-    showToast('Đã xóa cấu kiện khỏi danh sách.');
+    showToast(language === 'vi' ? 'Đã xóa cấu kiện khỏi danh sách.' : 'Deleted member from table.');
   };
 
   const handleUpdateHistoryEntry = (updated: BOMItem) => {
@@ -220,7 +221,7 @@ export default function App() {
   };
 
   const handleClearHistory = () => {
-    if (confirm('Bạn có chắc chắn muốn làm trống bảng thống kê này?')) {
+    if (confirm(language === 'vi' ? 'Bạn có chắc chắn muốn làm trống bảng thống kê này?' : 'Are you sure you want to clear this summary table?')) {
       setBomTables(
         bomTables.map((t) => {
           if (t.id === activeTableId) {
@@ -229,7 +230,7 @@ export default function App() {
           return t;
         })
       );
-      showToast('Đã xóa toàn bộ cấu kiện trong hạng mục hiện tại.');
+      showToast(language === 'vi' ? 'Đã xóa toàn bộ cấu kiện trong hạng mục hiện tại.' : 'Cleared all members from current table.');
     }
   };
 
@@ -255,134 +256,169 @@ export default function App() {
         </div>
       )}
 
-      {/* Main Header */}
-      <header className="bg-[#1E293B] text-white py-4.5 shadow-md sticky top-0 z-40 no-print shrink-0 border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="bg-orange-500 p-2 rounded-lg shadow-md shadow-orange-500/20">
-              <HardHat className="text-white w-5 h-5 animate-pulse" />
+      {/* Sticky Header & Tabs Bar */}
+      <div className="sticky top-0 z-40 no-print shrink-0 shadow-md">
+        {/* Main Header */}
+        <header className="bg-[#1E293B] text-white py-4.5 border-b border-slate-800">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="bg-orange-500 p-2 rounded-lg shadow-md shadow-orange-500/20">
+                <HardHat className="text-white w-5 h-5 animate-pulse" />
+              </div>
+              <div>
+                <h1 className="text-base sm:text-lg font-black uppercase tracking-tight">{t('header.title')}</h1>
+                <p className="text-[9px] text-slate-400 font-extrabold tracking-wider uppercase">
+                  {t('header.subtitle')}
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-base sm:text-lg font-black uppercase tracking-tight">Construction Calc Pro</h1>
-              <p className="text-[9px] text-slate-400 font-extrabold tracking-wider uppercase">
-                THỐNG KÊ KHỐI LƯỢNG VẬT LIỆU TRONG CÔNG TRÌNH
-              </p>
+
+            <div className="flex items-center gap-4">
+              <div className="hidden sm:flex items-center gap-6 text-xs pl-6 border-l border-slate-700/60 font-sans">
+                <div>
+                  <span className="text-slate-400 block font-extrabold uppercase text-[9px] tracking-wider">
+                    {t('header.totalSteelWeight')}
+                  </span>
+                  <span className="font-black font-mono text-orange-500 text-sm">
+                    {totalBOMWeightTons.toLocaleString(language === 'vi' ? 'vi-VN' : 'en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}{' '}
+                    <span className="text-[10px] text-slate-500 font-bold uppercase">{t('header.tons')}</span>
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block font-extrabold uppercase text-[9px] tracking-wider">
+                    {t('header.totalPaintArea')}
+                  </span>
+                  <span className="font-black font-mono text-blue-400 text-sm">
+                    {totalBOMPaintArea.toLocaleString(language === 'vi' ? 'vi-VN' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{' '}
+                    <span className="text-[10px] text-slate-500 font-bold uppercase">{t('header.sqm')}</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Language Switcher Buttons with Flags */}
+              <div className="flex items-center gap-1 bg-slate-800 p-1 rounded-lg border border-slate-700 shrink-0 select-none">
+                <button
+                  onClick={() => setLanguage('vi')}
+                  className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-black transition-all cursor-pointer ${
+                    language === 'vi'
+                      ? 'bg-orange-500 text-white shadow'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                  title="Tiếng Việt"
+                  id="lang-btn-vi"
+                >
+                  <span className="text-sm">🇻🇳</span>
+                  <span className="hidden sm:inline tracking-wider ml-1">VI</span>
+                </button>
+                <button
+                  onClick={() => setLanguage('en')}
+                  className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-black transition-all cursor-pointer ${
+                    language === 'en'
+                      ? 'bg-orange-500 text-white shadow'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                  title="English (US)"
+                  id="lang-btn-en"
+                >
+                  <span className="text-sm">🇺🇸</span>
+                  <span className="hidden sm:inline tracking-wider ml-1">EN</span>
+                </button>
+              </div>
             </div>
           </div>
+        </header>
 
-          <div className="hidden sm:flex items-center gap-6 text-xs pl-6 border-l border-slate-700/60 font-sans">
-            <div>
-              <span className="text-slate-400 block font-extrabold uppercase text-[9px] tracking-wider">
-                Tổng khối lượng thép dự án
-              </span>
-              <span className="font-black font-mono text-orange-500 text-sm">
-                {totalBOMWeightTons.toLocaleString('vi-VN', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}{' '}
-                <span className="text-[10px] text-slate-500 font-bold uppercase">Tấn</span>
-              </span>
+        {/* Tabs & Quick Converter Trigger bar */}
+        <div className="bg-white border-b border-slate-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-center sm:justify-between py-2 gap-2.5">
+            <nav className="flex gap-1 overflow-x-auto pb-1 sm:pb-0" aria-label="Main Navigation">
+              <button
+                onClick={() => setActiveTab('calculator')}
+                className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-black rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
+                  activeTab === 'calculator'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+                id="tab-btn-calculator"
+              >
+                <Calculator className="w-4 h-4" /> {t('tabs.calculator')}
+              </button>
+              <button
+                onClick={() => setActiveTab('concrete')}
+                className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-black rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
+                  activeTab === 'concrete'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+                id="tab-btn-concrete"
+              >
+                <Building className="w-4 h-4" /> {t('tabs.concrete')}
+              </button>
+              <button
+                onClick={() => setActiveTab('formwork')}
+                className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-black rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
+                  activeTab === 'formwork'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+                id="tab-btn-formwork"
+              >
+                <Layers className="w-4 h-4" /> {t('tabs.formwork')}
+              </button>
+              <button
+                onClick={() => setActiveTab('grades')}
+                className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-black rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
+                  activeTab === 'grades'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+                id="tab-btn-grades"
+              >
+                <Database className="w-4 h-4" /> {t('tabs.grades')}
+              </button>
+              <button
+                onClick={() => setActiveTab('bom')}
+                className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-black rounded-lg transition-colors cursor-pointer relative whitespace-nowrap ${
+                  activeTab === 'bom'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+                id="tab-btn-bom"
+              >
+                <FolderOpen className="w-4 h-4" /> {t('tabs.bom')} ({totalItemsCount})
+              </button>
+            </nav>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => {
+                  setShowConverter(!showConverter);
+                  setShowInterpolator(false);
+                }}
+                className={`flex items-center justify-center gap-1.5 px-3.5 py-1.5 border text-xs font-black rounded-lg cursor-pointer transition-colors ${
+                  showConverter
+                    ? 'border-orange-500 bg-orange-50 text-orange-600'
+                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
+                id="tab-btn-converter-toggle"
+              >
+                <ArrowLeftRight className="w-4 h-4" /> {t('buttons.quickConverter')}
+              </button>
+              <button
+                onClick={() => {
+                  setShowInterpolator(!showInterpolator);
+                  setShowConverter(false);
+                }}
+                className={`flex items-center justify-center gap-1.5 px-3.5 py-1.5 border text-xs font-black rounded-lg cursor-pointer transition-colors ${
+                  showInterpolator
+                    ? 'border-orange-500 bg-orange-50 text-orange-600'
+                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
+                id="tab-btn-interpolator-toggle"
+              >
+                <Calculator className="w-4 h-4" /> {t('buttons.linearInterpolator')}
+              </button>
             </div>
-            <div>
-              <span className="text-slate-400 block font-extrabold uppercase text-[9px] tracking-wider">
-                Diện tích sơn chống rỉ
-              </span>
-              <span className="font-black font-mono text-blue-400 text-sm">
-                {totalBOMPaintArea.toLocaleString('vi-VN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{' '}
-                <span className="text-[10px] text-slate-500 font-bold uppercase">m²</span>
-              </span>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Tabs & Quick Converter Trigger bar */}
-      <div className="bg-white border-b border-slate-200 shadow-xs no-print shrink-0">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-center sm:justify-between py-2 gap-2.5">
-          <nav className="flex gap-1 overflow-x-auto pb-1 sm:pb-0" aria-label="Main Navigation">
-            <button
-              onClick={() => setActiveTab('calculator')}
-              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-black rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
-                activeTab === 'calculator'
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-              }`}
-              id="tab-btn-calculator"
-            >
-              <Calculator className="w-4 h-4" /> Tra cứu thép hình
-            </button>
-            <button
-              onClick={() => setActiveTab('concrete')}
-              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-black rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
-                activeTab === 'concrete'
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-              }`}
-              id="tab-btn-concrete"
-            >
-              <Building className="w-4 h-4" /> Bê tông & Cốt thép
-            </button>
-            <button
-              onClick={() => setActiveTab('formwork')}
-              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-black rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
-                activeTab === 'formwork'
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-              }`}
-              id="tab-btn-formwork"
-            >
-              <Layers className="w-4 h-4" /> Tính ván khuôn
-            </button>
-            <button
-              onClick={() => setActiveTab('grades')}
-              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-black rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
-                activeTab === 'grades'
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-              }`}
-              id="tab-btn-grades"
-            >
-              <Database className="w-4 h-4" /> Cường độ vật liệu
-            </button>
-            <button
-              onClick={() => setActiveTab('bom')}
-              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-black rounded-lg transition-colors cursor-pointer relative whitespace-nowrap ${
-                activeTab === 'bom'
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-              }`}
-              id="tab-btn-bom"
-            >
-              <FolderOpen className="w-4 h-4" /> Bảng thống kê ({totalItemsCount})
-            </button>
-          </nav>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => {
-                setShowConverter(!showConverter);
-                setShowInterpolator(false);
-              }}
-              className={`flex items-center justify-center gap-1.5 px-3.5 py-1.5 border text-xs font-black rounded-lg cursor-pointer transition-colors ${
-                showConverter
-                  ? 'border-orange-500 bg-orange-50 text-orange-600'
-                  : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-              }`}
-              id="tab-btn-converter-toggle"
-            >
-              <ArrowLeftRight className="w-4 h-4" /> Đổi đơn vị nhanh
-            </button>
-            <button
-              onClick={() => {
-                setShowInterpolator(!showInterpolator);
-                setShowConverter(false);
-              }}
-              className={`flex items-center justify-center gap-1.5 px-3.5 py-1.5 border text-xs font-black rounded-lg cursor-pointer transition-colors ${
-                showInterpolator
-                  ? 'border-orange-500 bg-orange-50 text-orange-600'
-                  : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-              }`}
-              id="tab-btn-interpolator-toggle"
-            >
-              <Calculator className="w-4 h-4" /> Nội suy tuyến tính
-            </button>
           </div>
         </div>
       </div>
@@ -390,7 +426,7 @@ export default function App() {
       {/* Main Content Stage Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <div className={(showConverter || showInterpolator) ? 'lg:col-span-8 space-y-6' : 'lg:col-span-12 space-y-6'}>
+          <div className={`${(showConverter || showInterpolator) ? 'lg:col-span-8 space-y-6' : 'lg:col-span-12 space-y-6'} order-2 lg:order-1`}>
             <div className={activeTab === 'calculator' ? 'space-y-6' : 'hidden'}>
               <SteelShapeCalculator
                 grades={grades}
@@ -438,13 +474,13 @@ export default function App() {
           </div>
 
           {showConverter && (
-            <div className="lg:col-span-4 shrink-0 no-print">
+            <div className="lg:col-span-4 shrink-0 no-print order-1 lg:order-2">
               <UnitConverter onClose={() => setShowConverter(false)} />
             </div>
           )}
 
           {showInterpolator && (
-            <div className="lg:col-span-4 shrink-0 no-print">
+            <div className="lg:col-span-4 shrink-0 no-print order-1 lg:order-2">
               <LinearInterpolator onClose={() => setShowInterpolator(false)} />
             </div>
           )}
@@ -456,10 +492,16 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <span className="font-extrabold text-slate-600">Construction Calc Pro</span>
-            <span> • Công cụ tính toán tiên lượng thép và cấu kiện xây dựng offline</span>
+            <span>
+              {language === 'vi'
+                ? ' • Công cụ tính toán tiên lượng thép và cấu kiện xây dựng offline'
+                : ' • Offline engineering estimation tool for steel profiles and structural members'}
+            </span>
           </div>
           <div className="font-bold text-slate-400">
-            Tiêu chuẩn Việt Nam & Quốc tế | Hỗ trợ in ấn PDF chuyên nghiệp
+            {language === 'vi'
+              ? 'Tiêu chuẩn Việt Nam & Quốc tế | Hỗ trợ in ấn PDF chuyên nghiệp'
+              : 'Vietnamese & International Standards | Professional PDF Print Support'}
           </div>
         </div>
       </footer>

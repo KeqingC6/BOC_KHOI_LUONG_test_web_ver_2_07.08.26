@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { CONVERSIONS } from '../data';
 import { Copy, Check, X, ArrowLeftRight } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface UnitConverterProps {
   onClose?: () => void;
 }
 
 export default function UnitConverter({ onClose }: UnitConverterProps) {
+  const { t, translateConversionCategory, translateUnitName } = useLanguage();
   const [category, setCategory] = useState<string>('length');
   const [unitLeft, setUnitLeft] = useState<string>(CONVERSIONS.length.defaultLeft);
   const [unitRight, setUnitRight] = useState<string>(CONVERSIONS.length.defaultRight);
@@ -72,7 +74,7 @@ export default function UnitConverter({ onClose }: UnitConverterProps) {
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 transition-all">
       <div className="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
         <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
-          <ArrowLeftRight className="w-3.5 h-3.5 text-orange-500" /> Đổi đơn vị nhanh
+          <ArrowLeftRight className="w-3.5 h-3.5 text-orange-500" /> {t('converter.title')}
         </h3>
         {onClose && (
           <button
@@ -98,7 +100,7 @@ export default function UnitConverter({ onClose }: UnitConverterProps) {
                 : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
             }`}
           >
-            {data.name}
+            {translateConversionCategory(key, data.name)}
           </button>
         ))}
       </div>
@@ -133,7 +135,7 @@ export default function UnitConverter({ onClose }: UnitConverterProps) {
             >
               {Object.entries(activeUnits).map(([k, u]) => (
                 <option key={k} value={k}>
-                  {u.name}
+                  {translateUnitName(category, k, u.name)}
                 </option>
               ))}
             </select>
@@ -141,6 +143,7 @@ export default function UnitConverter({ onClose }: UnitConverterProps) {
               onClick={() => copyToClipboard(displayValLeft, 'left')}
               className="text-[10px] text-slate-400 hover:text-slate-600 font-bold flex items-center gap-1 cursor-pointer"
               id="btn-copy-left"
+              title={t('converter.copyLeft')}
             >
               {copiedField === 'left' ? (
                 <Check className="w-3.5 h-3.5 text-emerald-500" />
@@ -178,7 +181,7 @@ export default function UnitConverter({ onClose }: UnitConverterProps) {
             >
               {Object.entries(activeUnits).map(([k, u]) => (
                 <option key={k} value={k}>
-                  {u.name}
+                  {translateUnitName(category, k, u.name)}
                 </option>
               ))}
             </select>
@@ -186,6 +189,7 @@ export default function UnitConverter({ onClose }: UnitConverterProps) {
               onClick={() => copyToClipboard(displayValRight, 'right')}
               className="text-[10px] text-slate-400 hover:text-slate-600 font-bold flex items-center gap-1 cursor-pointer"
               id="btn-copy-right"
+              title={t('converter.copyRight')}
             >
               {copiedField === 'right' ? (
                 <Check className="w-3.5 h-3.5 text-emerald-500" />
